@@ -341,9 +341,15 @@ app.get('/api/crypto-toplist', async (req, res) => {
 // ===================================================================
 //  HTML PAGE SERVING
 // ===================================================================
+
+// **THIS IS THE FIX**
+// Serve the landing page as the main entry point for the root URL
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'landing.html'));
+});
+
 // This is a catch-all route. Any request that doesn't match an API route
-// will be sent the main index.html file. This is essential for
-// Single-Page Applications (SPAs) where the routing is handled on the client-side.
+// or the root route will be sent the main index.html file.
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

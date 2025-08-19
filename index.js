@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 const FormData = require('form-data');
+const fetch = require('node-fetch');
+const cheerio = require('cheerio');
 require('dotenv').config();
 
 const app = express();
@@ -23,48 +25,318 @@ app.use(express.static('public'));
 // This allows the server to read JSON from incoming requests
 app.use(express.json({ limit: '50mb' }));
 
-
 // ===================================================================
 //  API ROUTES
 // ===================================================================
 
-// Note: All routes now start with '/api/'
+// Chat endpoint
 app.post('/api/chat', async (req, res) => {
-    if (!GROQ_API_KEY) return res.status(500).json({ error: { message: 'GROQ_API_KEY is not configured.' } });
-    // ... Your full, original chat logic goes here ...
-    res.json({ text: "This is a response from the chat endpoint." }); // Placeholder for your logic
+    if (!GROQ_API_KEY) {
+        return res.status(500).json({ 
+            error: { message: 'GROQ_API_KEY is not configured.' } 
+        });
+    }
+
+    try {
+        const { message, messages = [] } = req.body;
+        
+        if (!message) {
+            return res.status(400).json({ 
+                error: { message: 'Message is required.' } 
+            });
+        }
+
+        // Prepare messages for Groq API
+        const chatMessages = [
+            { role: "system", content: "You are a helpful AI assistant." },
+            ...messages,
+            { role: "user", content: message }
+        ];
+
+        // Call Groq API
+        const response = await fetch(GROQ_API_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: 'llama3-8b-8192',
+                messages: chatMessages,
+                temperature: 0.7,
+                max_tokens: 1000,
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.text();
+            console.error('Groq API Error:', errorData);
+            return res.status(500).json({ 
+                error: { message: 'Failed to get response from AI service.' } 
+            });
+        }
+
+        const data = await response.json();
+        const aiMessage = data.choices[0]?.message?.content || 'No response received.';
+
+        res.json({ text: aiMessage });
+
+    } catch (error) {
+        console.error('Chat endpoint error:', error);
+        res.status(500).json({ 
+            error: { message: 'Internal server error.' } 
+        });
+    }
 });
 
+// Research endpoint
 app.post('/api/research', async (req, res) => {
-    // ... Your full, original research logic goes here ...
-    res.json({ answer: "Research results." }); // Placeholder
+    if (!SERPER_API_KEY) {
+        return res.status(500).json({ 
+            error: { message: 'SERPER_API_KEY is not configured.' } 
+        });
+    }
+
+    try {
+        const { query } = req.body;
+        
+        if (!query) {
+            return res.status(400).json({ 
+                error: { message: 'Query is required.' } 
+            });
+        }
+
+        // Search using Serper API
+        const searchResponse = await fetch('https://google.serper.dev/search', {
+            method: 'POST',
+            headers: {
+                'X-API-KEY': SERPER_API_KEY,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                q: query,
+                num: 5
+            }),
+        });
+
+        if (!searchResponse.ok) {
+            return res.status(500).json({ 
+                error: { message: 'Failed to search.' } 
+            });
+        }
+
+        const searchData = await searchResponse.json();
+        const results = searchData.organic?.slice(0, 3) || [];
+        
+        // Format search results
+        let searchSummary = `Here are the search results for "${query}":\n\n`;
+        results.forEach((result, index) => {
+            searchSummary += `${index + 1}. **${result.title}**\n`;
+            searchSummary += `   ${result.snippet}\n`;
+            searchSummary += `   Source: ${result.link}\n\n`;
+        });
+
+        res.json({ answer: searchSummary });
+
+    } catch (error) {
+        console.error('Research endpoint error:', error);
+        res.status(500).json({ 
+            error: { message: 'Internal server error.' } 
+        });
+    }
 });
 
+// Fetch URL endpoint
 app.post('/api/fetch-url', async (req, res) => {
-    // ... Your full, original fetch-url logic goes here ...
-    res.json({ title: "Page Title", content: "Page content..." }); // Placeholder
+    try {
+        const { url } = req.body;
+        
+        if (!url) {
+            return res.status(400).json({ 
+                error: { message: 'URL is required.' } 
+            });
+        }
+
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+        });
+
+        if (!response.ok) {
+            return res.status(500).json({ 
+                error: { message: 'Failed to fetch URL.' } 
+            });
+        }
+
+        const html = await response.text();
+        const $ = cheerio.load(html);
+        
+        // Extract title and content
+        const title = $('title').text() || 'No title found';
+        const content = $('p').text().substring(0, 2000) || 'No content found';
+
+        res.json({ title, content });
+
+    } catch (error) {
+        console.error('Fetch URL endpoint error:', error);
+        res.status(500).json({ 
+            error: { message: 'Internal server error.' } 
+        });
+    }
 });
 
+// Generate image endpoint
 app.post('/api/generate-image', async (req, res) => {
-    // ... Your full, original generate-image logic goes here ...
-    res.json({ imageBase64: "base64_string_here" }); // Placeholder
+    if (!CLIPDROP_API_KEY) {
+        return res.status(500).json({ 
+            error: { message: 'CLIPDROP_API_KEY is not configured.' } 
+        });
+    }
+
+    try {
+        const { prompt } = req.body;
+        
+        if (!prompt) {
+            return res.status(400).json({ 
+                error: { message: 'Prompt is required.' } 
+            });
+        }
+
+        const form = new FormData();
+        form.append('prompt', prompt);
+
+        const response = await fetch('https://clipdrop-api.co/text-to-image/v1', {
+            method: 'POST',
+            headers: {
+                'x-api-key': CLIPDROP_API_KEY,
+            },
+            body: form,
+        });
+
+        if (!response.ok) {
+            return res.status(500).json({ 
+                error: { message: 'Failed to generate image.' } 
+            });
+        }
+
+        const buffer = await response.buffer();
+        const base64Image = buffer.toString('base64');
+
+        res.json({ imageBase64: base64Image });
+
+    } catch (error) {
+        console.error('Generate image endpoint error:', error);
+        res.status(500).json({ 
+            error: { message: 'Internal server error.' } 
+        });
+    }
 });
 
+// Generate video endpoint
 app.post('/api/generate-video', async (req, res) => {
-    // ... Your full, original generate-video logic goes here ...
-    res.json({ videoUrl: "http://example.com/video.mp4" }); // Placeholder
+    if (!IMAGINE_TOKEN) {
+        return res.status(500).json({ 
+            error: { message: 'IMAGINE_TOKEN is not configured.' } 
+        });
+    }
+
+    try {
+        const { prompt } = req.body;
+        
+        if (!prompt) {
+            return res.status(400).json({ 
+                error: { message: 'Prompt is required.' } 
+            });
+        }
+
+        // This is a placeholder for video generation
+        // You'll need to implement the actual video generation API call
+        res.json({ 
+            videoUrl: null,
+            message: "Video generation is not yet implemented. Please add your video generation logic here." 
+        });
+
+    } catch (error) {
+        console.error('Generate video endpoint error:', error);
+        res.status(500).json({ 
+            error: { message: 'Internal server error.' } 
+        });
+    }
 });
 
+// Crypto price endpoint
 app.get('/api/crypto-price', async (req, res) => {
-    // ... Your full, original crypto-price logic goes here ...
-    res.json({ symbol: "BTC", price: "..." }); // Placeholder
+    if (!CRYPTOCOMPARE_API_KEY) {
+        return res.status(500).json({ 
+            error: { message: 'CRYPTOCOMPARE_API_KEY is not configured.' } 
+        });
+    }
+
+    try {
+        const { symbol = 'BTC' } = req.query;
+        
+        const response = await fetch(
+            `https://min-api.cryptocompare.com/data/price?fsym=${symbol}&tsyms=USD&api_key=${CRYPTOCOMPARE_API_KEY}`
+        );
+
+        if (!response.ok) {
+            return res.status(500).json({ 
+                error: { message: 'Failed to fetch crypto price.' } 
+            });
+        }
+
+        const data = await response.json();
+        
+        res.json({ 
+            symbol: symbol.toUpperCase(), 
+            price: data.USD || 'Price not available' 
+        });
+
+    } catch (error) {
+        console.error('Crypto price endpoint error:', error);
+        res.status(500).json({ 
+            error: { message: 'Internal server error.' } 
+        });
+    }
 });
 
+// Crypto top list endpoint
 app.get('/api/crypto-toplist', async (req, res) => {
-    // ... Your full, original crypto-toplist logic goes here ...
-    res.json([{ name: "Bitcoin", symbol: "BTC" }]); // Placeholder
-});
+    if (!CRYPTOCOMPARE_API_KEY) {
+        return res.status(500).json({ 
+            error: { message: 'CRYPTOCOMPARE_API_KEY is not configured.' } 
+        });
+    }
 
+    try {
+        const response = await fetch(
+            `https://min-api.cryptocompare.com/data/top/mktcapfull?limit=10&tsym=USD&api_key=${CRYPTOCOMPARE_API_KEY}`
+        );
+
+        if (!response.ok) {
+            return res.status(500).json({ 
+                error: { message: 'Failed to fetch crypto top list.' } 
+            });
+        }
+
+        const data = await response.json();
+        const topCryptos = data.Data?.map(crypto => ({
+            name: crypto.CoinInfo?.FullName,
+            symbol: crypto.CoinInfo?.Name,
+            price: crypto.RAW?.USD?.PRICE,
+            marketCap: crypto.RAW?.USD?.MKTCAP
+        })) || [];
+
+        res.json(topCryptos);
+
+    } catch (error) {
+        console.error('Crypto top list endpoint error:', error);
+        res.status(500).json({ 
+            error: { message: 'Internal server error.' } 
+        });
+    }
+});
 
 // ===================================================================
 //  HTML PAGE SERVING
@@ -75,7 +347,6 @@ app.get('/api/crypto-toplist', async (req, res) => {
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
 
 // ===================================================================
 //  START THE SERVER

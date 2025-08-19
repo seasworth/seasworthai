@@ -3804,6 +3804,30 @@ function handleSendMessage() {
     if (e.key === 'Enter') sendMessage();
   });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const init = () => {
+        // Check for login status from Session Storage
+        const isLoggedIn = sessionStorage.getItem('seasworth_logged_in') === 'true';
 
+        if (!isLoggedIn) {
+            // If not logged in, immediately redirect to the login page.
+            window.location.href = 'login.html';
+            return; // Stop further execution
+        }
+
+        // If logged in, proceed to load the application.
+        const user = sessionStorage.getItem('seasworth_user');
+        const isAdmin = sessionStorage.getItem('seasworth_is_admin') === 'true';
+
+        document.getElementById('usernameDisplay').textContent = user;
+        populateCommands(isAdmin); // This function will now run correctly
+    };
+
+    // ... rest of your script ...
+
+    init();
+});
+</script>
 </body>
 </html>

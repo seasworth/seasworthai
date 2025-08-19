@@ -6,7 +6,6 @@ const cheerio = require('cheerio');
 require('dotenv').config();
 
 const app = express();
-// Render will set the PORT environment variable. For local testing, it will use 3000.
 const PORT = process.env.PORT || 3000;
 
 // --- Environment Variables ---
@@ -20,9 +19,7 @@ const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 // --- Middleware ---
-// This serves all the files in your 'public' folder (index.html, css, etc.)
-app.use(express.static('.'));
-// This allows the server to read JSON from incoming requests
+app.use(express.static('public'));
 app.use(express.json({ limit: '50mb' }));
 
 // ===================================================================
@@ -32,28 +29,18 @@ app.use(express.json({ limit: '50mb' }));
 // Chat endpoint
 app.post('/api/chat', async (req, res) => {
     if (!GROQ_API_KEY) {
-        return res.status(500).json({ 
-            error: { message: 'GROQ_API_KEY is not configured.' } 
-        });
+        return res.status(500).json({ error: { message: 'GROQ_API_KEY is not configured.' } });
     }
-
     try {
         const { message, messages = [] } = req.body;
-        
         if (!message) {
-            return res.status(400).json({ 
-                error: { message: 'Message is required.' } 
-            });
+            return res.status(400).json({ error: { message: 'Message is required.' } });
         }
-
-        // Prepare messages for Groq API
         const chatMessages = [
             { role: "system", content: "You are a helpful AI assistant." },
             ...messages,
             { role: "user", content: message }
         ];
-
-        // Call Groq API
         const response = await fetch(GROQ_API_URL, {
             method: 'POST',
             headers: {
@@ -67,82 +54,53 @@ app.post('/api/chat', async (req, res) => {
                 max_tokens: 1000,
             }),
         });
-
         if (!response.ok) {
             const errorData = await response.text();
             console.error('Groq API Error:', errorData);
-            return res.status(500).json({ 
-                error: { message: 'Failed to get response from AI service.' } 
-            });
+            return res.status(500).json({ error: { message: 'Failed to get response from AI service.' } });
         }
-
         const data = await response.json();
         const aiMessage = data.choices[0]?.message?.content || 'No response received.';
-
         res.json({ text: aiMessage });
-
     } catch (error) {
         console.error('Chat endpoint error:', error);
-        res.status(500).json({ 
-            error: { message: 'Internal server error.' } 
-        });
+        res.status(500).json({ error: { message: 'Internal server error.' } });
     }
 });
 
 // Research endpoint
 app.post('/api/research', async (req, res) => {
     if (!SERPER_API_KEY) {
-        return res.status(500).json({ 
-            error: { message: 'SERPER_API_KEY is not configured.' } 
-        });
+        return res.status(500).json({ error: { message: 'SERPER_API_KEY is not configured.' } });
     }
-
     try {
         const { query } = req.body;
-        
         if (!query) {
-            return res.status(400).json({ 
-                error: { message: 'Query is required.' } 
-            });
+            return res.status(400).json({ error: { message: 'Query is required.' } });
         }
-
-        // Search using Serper API
         const searchResponse = await fetch('https://google.serper.dev/search', {
             method: 'POST',
             headers: {
                 'X-API-KEY': SERPER_API_KEY,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                q: query,
-                num: 5
-            }),
+            body: JSON.stringify({ q: query, num: 5 }),
         });
-
         if (!searchResponse.ok) {
-            return res.status(500).json({ 
-                error: { message: 'Failed to search.' } 
-            });
+            return res.status(500).json({ error: { message: 'Failed to search.' } });
         }
-
         const searchData = await searchResponse.json();
         const results = searchData.organic?.slice(0, 3) || [];
-        
-        // Format search results
         let searchSummary = `Here are the search results for "${query}":\n\n`;
         results.forEach((result, index) => {
             searchSummary += `${index + 1}. **${result.title}**\n`;
             searchSummary += `   ${result.snippet}\n`;
             searchSummary += `   Source: ${result.link}\n\n`;
         });
-
         res.json({ answer: searchSummary });
-
     } catch (error) {
         console.error('Research endpoint error:', error);
-        res.status(500).json({ 
-            error: { message: 'Internal server error.' } 
-        });
+        res.status(500).json({ error: { message: 'Internal server error.' } });
     }
 });
 
@@ -150,176 +108,111 @@ app.post('/api/research', async (req, res) => {
 app.post('/api/fetch-url', async (req, res) => {
     try {
         const { url } = req.body;
-        
         if (!url) {
-            return res.status(400).json({ 
-                error: { message: 'URL is required.' } 
-            });
+            return res.status(400).json({ error: { message: 'URL is required.' } });
         }
-
         const response = await fetch(url, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            }
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
         });
-
         if (!response.ok) {
-            return res.status(500).json({ 
-                error: { message: 'Failed to fetch URL.' } 
-            });
+            return res.status(500).json({ error: { message: 'Failed to fetch URL.' } });
         }
-
         const html = await response.text();
         const $ = cheerio.load(html);
-        
-        // Extract title and content
         const title = $('title').text() || 'No title found';
         const content = $('p').text().substring(0, 2000) || 'No content found';
-
         res.json({ title, content });
-
     } catch (error) {
         console.error('Fetch URL endpoint error:', error);
-        res.status(500).json({ 
-            error: { message: 'Internal server error.' } 
-        });
+        res.status(500).json({ error: { message: 'Internal server error.' } });
     }
 });
 
 // Generate image endpoint
 app.post('/api/generate-image', async (req, res) => {
     if (!CLIPDROP_API_KEY) {
-        return res.status(500).json({ 
-            error: { message: 'CLIPDROP_API_KEY is not configured.' } 
-        });
+        return res.status(500).json({ error: { message: 'CLIPDROP_API_KEY is not configured.' } });
     }
-
     try {
         const { prompt } = req.body;
-        
         if (!prompt) {
-            return res.status(400).json({ 
-                error: { message: 'Prompt is required.' } 
-            });
+            return res.status(400).json({ error: { message: 'Prompt is required.' } });
         }
-
         const form = new FormData();
         form.append('prompt', prompt);
-
         const response = await fetch('https://clipdrop-api.co/text-to-image/v1', {
             method: 'POST',
-            headers: {
-                'x-api-key': CLIPDROP_API_KEY,
-            },
+            headers: { 'x-api-key': CLIPDROP_API_KEY },
             body: form,
         });
-
         if (!response.ok) {
-            return res.status(500).json({ 
-                error: { message: 'Failed to generate image.' } 
-            });
+            return res.status(500).json({ error: { message: 'Failed to generate image.' } });
         }
-
         const buffer = await response.buffer();
         const base64Image = buffer.toString('base64');
-
         res.json({ imageBase64: base64Image });
-
     } catch (error) {
         console.error('Generate image endpoint error:', error);
-        res.status(500).json({ 
-            error: { message: 'Internal server error.' } 
-        });
+        res.status(500).json({ error: { message: 'Internal server error.' } });
     }
 });
 
 // Generate video endpoint
 app.post('/api/generate-video', async (req, res) => {
     if (!IMAGINE_TOKEN) {
-        return res.status(500).json({ 
-            error: { message: 'IMAGINE_TOKEN is not configured.' } 
-        });
+        return res.status(500).json({ error: { message: 'IMAGINE_TOKEN is not configured.' } });
     }
-
     try {
         const { prompt } = req.body;
-        
         if (!prompt) {
-            return res.status(400).json({ 
-                error: { message: 'Prompt is required.' } 
-            });
+            return res.status(400).json({ error: { message: 'Prompt is required.' } });
         }
-
-        // This is a placeholder for video generation
-        // You'll need to implement the actual video generation API call
-        res.json({ 
+        res.json({
             videoUrl: null,
-            message: "Video generation is not yet implemented. Please add your video generation logic here." 
+            message: "Video generation is not yet implemented. Please add your video generation logic here."
         });
-
     } catch (error) {
         console.error('Generate video endpoint error:', error);
-        res.status(500).json({ 
-            error: { message: 'Internal server error.' } 
-        });
+        res.status(500).json({ error: { message: 'Internal server error.' } });
     }
 });
 
 // Crypto price endpoint
 app.get('/api/crypto-price', async (req, res) => {
     if (!CRYPTOCOMPARE_API_KEY) {
-        return res.status(500).json({ 
-            error: { message: 'CRYPTOCOMPARE_API_KEY is not configured.' } 
-        });
+        return res.status(500).json({ error: { message: 'CRYPTOCOMPARE_API_KEY is not configured.' } });
     }
-
     try {
         const { symbol = 'BTC' } = req.query;
-        
         const response = await fetch(
             `https://min-api.cryptocompare.com/data/price?fsym=${symbol}&tsyms=USD&api_key=${CRYPTOCOMPARE_API_KEY}`
         );
-
         if (!response.ok) {
-            return res.status(500).json({ 
-                error: { message: 'Failed to fetch crypto price.' } 
-            });
+            return res.status(500).json({ error: { message: 'Failed to fetch crypto price.' } });
         }
-
         const data = await response.json();
-        
-        res.json({ 
-            symbol: symbol.toUpperCase(), 
-            price: data.USD || 'Price not available' 
+        res.json({
+            symbol: symbol.toUpperCase(),
+            price: data.USD || 'Price not available'
         });
-
     } catch (error) {
         console.error('Crypto price endpoint error:', error);
-        res.status(500).json({ 
-            error: { message: 'Internal server error.' } 
-        });
+        res.status(500).json({ error: { message: 'Internal server error.' } });
     }
 });
 
 // Crypto top list endpoint
 app.get('/api/crypto-toplist', async (req, res) => {
     if (!CRYPTOCOMPARE_API_KEY) {
-        return res.status(500).json({ 
-            error: { message: 'CRYPTOCOMPARE_API_KEY is not configured.' } 
-        });
+        return res.status(500).json({ error: { message: 'CRYPTOCOMPARE_API_KEY is not configured.' } });
     }
-
     try {
         const response = await fetch(
             `https://min-api.cryptocompare.com/data/top/mktcapfull?limit=10&tsym=USD&api_key=${CRYPTOCOMPARE_API_KEY}`
         );
-
         if (!response.ok) {
-            return res.status(500).json({ 
-                error: { message: 'Failed to fetch crypto top list.' } 
-            });
+            return res.status(500).json({ error: { message: 'Failed to fetch crypto top list.' } });
         }
-
         const data = await response.json();
         const topCryptos = data.Data?.map(crypto => ({
             name: crypto.CoinInfo?.FullName,
@@ -327,14 +220,10 @@ app.get('/api/crypto-toplist', async (req, res) => {
             price: crypto.RAW?.USD?.PRICE,
             marketCap: crypto.RAW?.USD?.MKTCAP
         })) || [];
-
         res.json(topCryptos);
-
     } catch (error) {
         console.error('Crypto top list endpoint error:', error);
-        res.status(500).json({ 
-            error: { message: 'Internal server error.' } 
-        });
+        res.status(500).json({ error: { message: 'Internal server error.' } });
     }
 });
 
@@ -342,14 +231,14 @@ app.get('/api/crypto-toplist', async (req, res) => {
 //  HTML PAGE SERVING
 // ===================================================================
 
-// **THIS IS THE FIX**
-// Serve the landing page as the main entry point for the root URL
+// THIS IS THE FIX:
+// This new route specifically handles the initial visit to your site's root URL.
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'landing.html'));
 });
 
-// This is a catch-all route. Any request that doesn't match an API route
-// or the root route will be sent the main index.html file.
+// This is the catch-all route. It now only runs for requests that don't match
+// an API route OR the root route we just added above.
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

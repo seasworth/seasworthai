@@ -21,7 +21,7 @@ const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 // --- Middleware ---
 // This serves all the files in your 'public' folder (index.html, css, etc.)
-app.use(express.static('public'));
+app.use(express.static('.'));
 // This allows the server to read JSON from incoming requests
 app.use(express.json({ limit: '50mb' }));
 

@@ -3762,5 +3762,48 @@ function handleSendMessage() {
     init();
 });
 </script>
+<script>
+  const input = document.querySelector('.chat-input');
+  const sendBtn = document.querySelector('.send-btn');
+  const messagesArea = document.querySelector('.message-area');
+
+  async function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+
+    // Show user message
+    const userBubble = document.createElement('div');
+    userBubble.className = 'message-bubble user-message';
+    userBubble.innerHTML = `<div class="message-content">${text}</div>`;
+    messagesArea.appendChild(userBubble);
+
+    input.value = '';
+
+    // Call backend API
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+      });
+      const data = await res.json();
+
+      const botBubble = document.createElement('div');
+      botBubble.className = 'message-bubble bot-message';
+      botBubble.innerHTML = `<div class="message-content">${data.text || "Error"} </div>`;
+      messagesArea.appendChild(botBubble);
+
+      messagesArea.scrollTop = messagesArea.scrollHeight;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  input.addEventListener('keypress', e => {
+    if (e.key === 'Enter') sendMessage();
+  });
+</script>
+
 </body>
 </html>

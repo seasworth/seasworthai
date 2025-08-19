@@ -1047,7 +1047,20 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error saving chats:", e);
         }
     };
-    
+
+function renderChatList() {
+  chatsList.innerHTML = '<h3>Recent Chats</h3>';
+  chats.forEach(chat => {
+    // ... (the code to create chatItem is the same)
+
+    // CHANGE THIS LINE:
+    const titleText = chat.title.substring(0, 25) + (chat.title.length > 25 ? '...' : '');
+
+    chatItem.innerHTML = `<span class="title">${titleText}</span><button class="delete-chat-btn">×</button>`;
+
+    // ... (the rest of the function is the same)
+  });
+}
     const loadChats = () => {
         const saved = localStorage.getItem('seasworth_chats_v4');
         if (saved) {
@@ -2419,7 +2432,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const response = await fetch('/api/chat', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json' },    
                     body: JSON.stringify({ prompt: schedulePrompt, history: [] })
                 });
                 
@@ -3746,5 +3759,20 @@ document.addEventListener('DOMContentLoaded', () => {
     init();
 });
 </script>
+<script>
+  // ADD THIS LINE AT THE TOP
+  document.addEventListener('DOMContentLoaded', () => {
+
+    // All of your existing JavaScript code goes here...
+    // let chats = [];
+    // let activeChatId = null;
+    // const chatArea = document.getElementById('chat-area');
+    // ... and so on, all the way to the end.
+
+
+  // ADD THIS LINE AT THE VERY END
+  });
+</script>
+
 </body>
 </html>

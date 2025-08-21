@@ -1294,36 +1294,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const toggleOnlineStatus = () => { isOffline = !isOffline; appContainer.classList.toggle('offline', isOffline); statusTextElement.textContent = isOffline ? 'Offline' : 'Online'; statusToggleButton.title = isOffline ? 'Go Online' : 'Go Offline'; chatInputElement.disabled = isOffline; sendBtn.disabled = isOffline; chatInputElement.placeholder = isOffline ? 'AI is offline.' : (activeChatId ? 'Type your message...' : 'Start a new conversation...'); };
 
-    const getBotResponse = async (prompt, images, history, signal) => {
-        try {
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt, images, history }),
-                signal
-            });
-            const data = await response.json();
-            if (!response.ok) {
-                 throw new Error(data.error?.message || 'An unknown error occurred with the API.');
-            }
-            
-            // Filter out malformed responses with tool calls
-            if (data.text && (data.text.includes('tool_call') || data.text.includes('function') || data.text.includes('get_sun_position') || data.text.includes('generate_recipe'))) {
-                return { text: "Recipe generation failed. Please try again with a different request." };
-            }
-            
-            // Remove timestamp footers from responses
-            if (data.text) {
-                data.text = data.text.replace(/\n\n\*⚡ Response generated at .*?\*/g, '');
-                data.text = data.text.replace(/\*⚡ Response generated at .*?\*/g, '');
-            }
-            
-            return data;
-        } catch (error) {
-            if (error.name === 'AbortError') return null;
-            return { error: { message: `Yikes! I couldn't connect to my brain. The server might be resting. Here's the technical detail: ${error.message}` } };
+async function getBotResponse(userMessage) {
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: userMessage,  // Make sure this line exists and userMessage has a value
+                messages: chatHistory || []  // Include chat history if you have it
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-    };
+
+        const data = await response.json();
+        return data.text || 'No response received';
+        
+    } catch (error) {
+        console.error('Error calling chat API:', error);
+        return 'Sorry, I encountered an error. Please try again.';
+    }
+}
+
+function updateChatTitle(chatId, newTitle) {
+  const chat = chats.find(c => c.id === chatId);
+  if (chat) {
+    chat.title = newTitle; // Update the title in your data
+    saveChats();
+    renderChatList(); // Redraw the sidebar
+  }
+}
+
+// Also check your handleSendMessage function around line 1467
+function handleSendMessage() {
+    const messageInput = document.getElementById('messageInput'); // or whatever your input ID is
+    const userMessage = messageInput.value.trim();
+    
+    
+    if (!userMessage) {
+        return; // Don't send empty messages
+    }
+    
+    // Clear the input
+    messageInput.value = '';
+    
+    // Add user message to chat
+    addMessageToChat(userMessage, 'user');
+    
+    // Get bot response
+    getBotResponse(userMessage).then(botResponse => {
+        addMessageToChat(botResponse, 'bot');
+    });
+}
     
     const showCommandBuilder = (command) => {
         commandMode = command;
@@ -3745,6 +3771,116 @@ document.addEventListener('DOMContentLoaded', () => {
 
     init();
 });
+</script>
+<script>
+  const input = document.querySelector('.chat-input');
+  const sendBtn = document.querySelector('.send-btn');
+  const messagesArea = document.querySelector('.message-area');
+
+async function sendMessage() {
+  const text = messageInput.value.trim();
+  if (!text) return;
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: text,
+        messages: []
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Handle the AI response
+    console.log('AI Response:', data.text);
+    
+    // Add your code here to display the response in the chat
+    
+  } catch (error) {
+    console.error('Error:', error);
+  }
+
+    // Show user message
+    const userBubble = document.createElement('div');
+    userBubble.className = 'message-bubble user-message';
+    userBubble.innerHTML = `<div class="message-content">${text}</div>`;
+    messagesArea.appendChild(userBubble);
+
+    input.value = '';
+
+    // Call backend API
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+      });
+      const data = await res.json();
+
+      const botBubble = document.createElement('div');
+      botBubble.className = 'message-bubble bot-message';
+      botBubble.innerHTML = `<div class="message-content">${data.text || "Error"} </div>`;
+      messagesArea.appendChild(botBubble);
+
+      messagesArea.scrollTop = messagesArea.scrollHeight;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  input.addEventListener('keypress', e => {
+    if (e.key === 'Enter') sendMessage();
+  });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const init = () => {
+        // Check for login status from Session Storage
+        const isLoggedIn = sessionStorage.getItem('seasworth_logged_in') === 'true';
+
+        if (!isLoggedIn) {
+            // If not logged in, immediately redirect to the login page.
+            window.location.href = 'login.html';
+            return; // Stop further execution
+        }
+
+        // If logged in, proceed to load the application.
+        const user = sessionStorage.getItem('seasworth_user');
+        const isAdmin = sessionStorage.getItem('seasworth_is_admin') === 'true';
+
+        document.getElementById('usernameDisplay').textContent = user;
+        populateCommands(isAdmin); // This function will now run correctly
+    };
+
+    // ... rest of your script ...
+
+    init();
+});
+</script>
+// index.html (at the bottom)
+
+<script>
+  // ADD THIS LINE AT THE TOP
+  document.addEventListener('DOMContentLoaded', () => {
+
+    // All of your existing JavaScript code goes here...
+    // let chats = [];
+    // let activeChatId = null;
+    // const chatArea = document.getElementById('chat-area');
+    // ... and so on, all the way to the end.
+
+
+  // ADD THIS LINE AT THE VERY END
+  });
 </script>
 </body>
 </html>

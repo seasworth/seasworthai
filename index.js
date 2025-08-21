@@ -30,27 +30,46 @@ app.use(express.json({ limit: '50mb' }));
 
 // Chat endpoint
 app.post('/api/chat', async (req, res) => {
-    if (!GROQ_API_KEY) {
-        return res.status(500).json({ error: { message: 'GROQ_API_KEY is not configured.' } });
+  if (!GROQ_API_KEY) {
+    return res.status(500).json({ error: { message: 'GROQ_API_KEY is not configured.' } });
+  }
+
+  try {
+    const { message, messages = [] } = req.body;
+    if (!message) { 
+      return res.status(400).json({ error: { message: 'Message is required.' } }); 
     }
-    try {
-        const { message, messages = [] } = req.body;
-        if (!message) { return res.status(400).json({ error: { message: 'Message is required.' } }); }
-        const chatMessages = [{ role: "system", content: "You are a helpful AI assistant." }, ...messages, { role: "user", content: message }];
-        const response = await fetch(GROQ_API_URL, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ model: 'llama3-8b-8192', messages: chatMessages, temperature: 0.7, max_tokens: 1000 }),
-        });
-        if (!response.ok) {
-            const errorData = await response.text();
-            return res.status(500).json({ error: { message: 'Failed to get response from AI service.' } });
-        }
-        const data = await response.json();
-        res.json({ text: data.choices[0]?.message?.content || 'No response.' });
-    } catch (error) {
-        res.status(500).json({ error: { message: 'Internal server error.' } });
+
+    const chatMessages = [
+      { role: "system", content: "You are a helpful AI assistant." }, 
+      ...messages, 
+      { role: "user", content: message }
+    ];
+
+    const response = await fetch(GROQ_API_URL, {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${GROQ_API_KEY}`, 
+        'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify({ 
+        model: 'llama3-8b-8192', 
+        messages: chatMessages, 
+        temperature: 0.7, 
+        max_tokens: 1000 
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      return res.status(500).json({ error: { message: 'Failed to get response from AI service.' } });
     }
+
+    const data = await response.json();
+    res.json({ text: data.choices[0]?.message?.content || 'No response.' });
+  } catch (error) {
+    res.status(500).json({ error: { message: 'Internal server error.' } });
+  }
 });
 
 // Other API routes (research, generate-image, etc.) go here...

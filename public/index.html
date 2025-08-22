@@ -1289,22 +1289,34 @@ const resetInputUI = () => {
     const toggleOnlineStatus = () => { isOffline = !isOffline; appContainer.classList.toggle('offline', isOffline); statusTextElement.textContent = isOffline ? 'Offline' : 'Online'; statusToggleButton.title = isOffline ? 'Go Online' : 'Go Offline'; chatInputElement.disabled = isOffline; sendBtn.disabled = isOffline; chatInputElement.placeholder = isOffline ? 'AI is offline.' : (activeChatId ? 'Type your message...' : 'Start a new conversation...'); };
 
 async function getBotResponse(prompt, images = [], history = [], signal) {
+    // Validate input parameters
+    if (!prompt || typeof prompt !== 'string' || prompt.trim() === '') {
+        throw new Error('Prompt is required and must be a non-empty string');
+    }
+
     try {
+        const requestBody = {
+            prompt: prompt.trim(),
+            images: Array.isArray(images) ? images : [],
+            history: Array.isArray(history) ? history : []
+        };
+
+        console.log('Sending request:', requestBody); // Debug log
+
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                prompt: prompt,      // ✅ Use 'prompt' instead of 'message'
-                images: images,      // ✅ Include images array  
-                history: history     // ✅ Use 'history' instead of 'messages'
-            }),
+            body: JSON.stringify(requestBody),
             signal
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Get detailed error message from server
+            const errorText = await response.text().catch(() => 'Unknown error');
+            console.error('API Error Response:', errorText);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
         }
 
         const data = await response.json();
@@ -1313,7 +1325,7 @@ async function getBotResponse(prompt, images = [], history = [], signal) {
     } catch (error) {
         console.error('Error calling chat API:', error);
         if (error.name === 'AbortError') return null;
-        return { error: { message: `API connection failed: ${error.message}` } };
+        throw error;
     }
 }
 

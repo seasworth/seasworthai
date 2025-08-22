@@ -1210,26 +1210,20 @@ document.addEventListener('DOMContentLoaded', () => {
         messageArea.scrollTop = messageArea.scrollHeight;
     };
 
-    const showWelcomeScreen = () => { 
-        stopCryptoRefresh(); 
-        resetInputUI(); 
-        activeChatId = null; 
-        welcomeScreen.style.display = 'flex'; 
-        messageArea.style.display = 'none'; 
-        chatInputElement.placeholder = 'Start a new conversation...'; 
-        renderChatList(); 
-        clearImagePreviews();
-        
-        // Clear reply context
-        currentReplyContext = null;
-        document.getElementById('reply-bar').style.display = 'none';
-        
-        // Remove active states from footer tabs and show composer
-        document.querySelector('.footer-tab[onclick="showAbout()"]').classList.remove('active');
-        document.querySelector('.footer-tab[onclick="showHelp()"]').classList.remove('active');
-        document.querySelector('.footer-tab[onclick="showDevPortal()"]').classList.remove('active');
-        document.querySelector('.composer').style.display = 'block';
-    };
+const resetInputUI = () => {
+    commandMode = null;
+    if (commandBuilder) {
+        commandBuilder.style.display = 'none';
+    }
+    if (chatInputWrapper) {
+        chatInputWrapper.style.display = 'flex';
+    }
+    if (chatInputElement) {
+        chatInputElement.value = '';
+        chatInputElement.focus();
+    }
+};
+
     const showTypingIndicator = () => { 
         const ind = document.createElement('div'); 
         ind.className = 'message-bubble bot-message typing-indicator'; 
@@ -2197,35 +2191,27 @@ const handleSendMessage = async () => {
             return;
         }
         
-        // Set user info
-        currentUser = username;
-        isAdmin = isAdminUser;
-        
-        // Show access & support portal for all users
-        document.getElementById('dev-portal-tab').style.display = 'block';
+    const resetInputUI = () => {
+    // Exit command mode
+    commandMode = null;
 
-        
-        loadChats();
-        showWelcomeScreen();
-        statusToggleButton.addEventListener('click', () => {
-            if (abortController) { abortController.abort(); abortController = null; statusToggleButton.title = "Toggle AI Status"; } 
-            else { toggleOnlineStatus(); }
-        });
-        newChatBtn.addEventListener('click', () => {
-            stopCryptoRefresh(); 
-            resetInputUI(); 
-            activeChatId = null; 
-            showWelcomeScreen();
-            clearImagePreviews();
-            
-            // Clear reply context
-            currentReplyContext = null;
-            document.getElementById('reply-bar').style.display = 'none';
-            
-            // Remove active states from footer tabs
-            document.querySelector('.footer-tab[onclick="showAbout()"]').classList.remove('active');
-            document.querySelector('.footer-tab[onclick="showHelp()"]').classList.remove('active');
-        });
+    // Hide the command builder panel if it exists
+    if (typeof commandBuilder !== 'undefined' && commandBuilder) {
+        commandBuilder.style.display = 'none';
+    }
+
+    // Show the main chat input area
+    if (typeof chatInputWrapper !== 'undefined' && chatInputWrapper) {
+        chatInputWrapper.style.display = 'flex';
+    }
+
+    // Clear and focus the chat input
+    if (typeof chatInputElement !== 'undefined' && chatInputElement) {
+        chatInputElement.value = '';
+        chatInputElement.focus();
+    }
+};
+
         sendBtn.addEventListener('click', handleSendMessage);
         chatInputElement.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } });
         chatInputElement.addEventListener('paste', handlePaste);

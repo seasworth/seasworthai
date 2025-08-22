@@ -1330,195 +1330,157 @@ function updateChatTitle(chatId, newTitle) {
 }
 
 // Also check your handleSendMessage function around line 1467
-function handleSendMessage() {
-    const messageInput = document.getElementById('messageInput'); // or whatever your input ID is
-    const userMessage = messageInput.value.trim();
-    
-    
-    if (!userMessage) {
-        return; // Don't send empty messages
-    }
-    
-    // Clear the input
-    messageInput.value = '';
-    
-    // Add user message to chat
-    addMessageToChat(userMessage, 'user');
-    
-    // Get bot response
-    getBotResponse(userMessage).then(botResponse => {
-        addMessageToChat(botResponse, 'bot');
-    });
-}
-    
-    const showCommandBuilder = (command) => {
-        commandMode = command;
-        chatInputWrapper.style.display = 'none';
-        commandBuilder.style.display = 'flex';
-        let builderHTML = `<span class="cmd-name">${command.name}</span>`;
-        command.params.forEach(param => {
-            builderHTML += `<div class="param-input-box"><input type="text" class="param-input" id="param-${param.name}" placeholder="${param.name}"></div>`;
-        });
-        commandBuilder.innerHTML = builderHTML;
-        const firstInput = commandBuilder.querySelector('.param-input');
-        if (firstInput) {
-            firstInput.focus();
-            firstInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } 
-                else if (e.key === 'Backspace' && firstInput.value === '') { e.preventDefault(); resetInputUI(); }
-            });
+const handleSendMessage = async () => {
+    stopCryptoRefresh();
+    let messageText = '';
+
+    // Support for the old simple function that used 'messageInput' ID
+    const messageInput = document.getElementById('messageInput');
+    if (!commandMode && messageInput) {
+        messageText = messageInput.value.trim();
+        if (messageText) {
+            messageInput.value = ''; // clear old input
         }
-    };
+    }
 
-    const resetInputUI = () => {
-        commandMode = null;
-        commandBuilder.style.display = 'none';
-        chatInputWrapper.style.display = 'flex';
-        chatInputElement.value = '';
-        chatInputElement.focus();
-    };
-
-    const renderCommands = (filteredCommands) => {
-        commandSelector.innerHTML = '';
-        filteredCommands.forEach(cmd => {
-            const item = document.createElement('div');
-            item.className = 'command-item';
-            item.innerHTML = `<div class="command-icon">${cmd.icon}</div><div><div class="command-name">${cmd.name}</div><div class="command-desc">${cmd.description}</div></div>`;
-            item.addEventListener('click', () => {
-                commandSelector.style.display = 'none';
-                if (cmd.params && cmd.name !== '/recipe') {
-                    showCommandBuilder(cmd);
-                } else {
-                    chatInputElement.value = cmd.name;
-                    handleSendMessage();
-                }
-            });
-            commandSelector.appendChild(item);
-        });
-    };
-
-    const handleSendMessage = async () => {
-        stopCryptoRefresh();
-        let messageText = '';
+    // Existing logic using chatInputElement
+    if (!messageText) {
         if (commandMode) {
             const paramInput = document.getElementById(`param-${commandMode.params[0].name}`);
             messageText = `${commandMode.name} ${paramInput.value.trim()}`;
-        } else {
+        } else if (chatInputElement) {
             messageText = chatInputElement.value.trim();
-        }
-        if ((!messageText && attachedImages.length === 0) || isOffline) return;
-        resetInputUI();
-        let currentChat;
-        if (activeChatId === null) {
-            const newChatId = Date.now().toString();
-            const newChat = { id: newChatId, title: "New Chat", messages: [] };
-            chats.push(newChat);
-            activeChatId = newChatId;
-            currentChat = newChat;
-            renderChatList();
-            
-            // Generate intelligent title
-            generateChatTitle(messageText, newChatId);
-        } else {
-            currentChat = chats.find(c => c.id === activeChatId);
-        }
-        const imagesForApi = [...attachedImages];
-        const userMessage = { 
-            role: 'user', 
-            text: messageText, 
-            images: imagesForApi.map(img => img.base64),
-            originalCommand: messageText.startsWith('/') ? messageText.split(' ')[0] : null,
-            replyTo: currentReplyContext
-        };
-        
-        // Clear reply context after using it
-        if (currentReplyContext) {
-            cancelReply();
-        }
-        currentChat.messages.push(userMessage);
-        const historyForApi = currentChat.messages.slice(0, -1).map(msg => ({
-             role: msg.role, text: msg.text
-        }));
-        const promptForApi = messageText;
-        clearImagePreviews();
-        renderChatContent();
-        abortController = new AbortController();
-        let botResponseData;
-        try {
-            if (promptForApi.toLowerCase().startsWith('/image')) {
-                const imagePrompt = promptForApi.substring(6).trim();
-                await handleImageCommand(imagePrompt);
-                return;
-            } else if (promptForApi.toLowerCase().startsWith('/video')) {
-                const videoPrompt = promptForApi.substring(6).trim();
-                await handleVideoCommand(videoPrompt);
-                return;
-            } else if (promptForApi.toLowerCase().startsWith('/crypto')) {
-                 const coin = promptForApi.substring(7).trim();
-                 await handleCryptoCommand(coin);
-                 return;
-            } else if (promptForApi.toLowerCase().startsWith('/design')) {
-                await handleDesignCommand();
-                return;
-            } else if (promptForApi.toLowerCase().startsWith('/study')) {
-                const topic = promptForApi.substring(6).trim();
-                await handleStudyCommand(topic);
-                return;
-            } else if (promptForApi.toLowerCase().startsWith('/quiz')) {
-                const topic = promptForApi.substring(5).trim();
-                await handleQuizCommand(topic);
-                return;
-            } else if (promptForApi.toLowerCase().startsWith('/schedule')) {
-                const schedulePrompt = promptForApi.substring(9).trim();
-                await handleScheduleCommand(schedulePrompt);
-                return;
-            } else if (promptForApi.toLowerCase().startsWith('/whiteboard')) {
-                const topic = promptForApi.substring(11).trim();
-                await handleWhiteboardCommand(topic);
-                return;
-            } else if (promptForApi.toLowerCase().startsWith('/recipe')) {
-                const ingredients = promptForApi.substring(7).trim();
-                await handleRecipeCommand(ingredients);
-                return;
-            } else if (promptForApi.toLowerCase() === '/clear') {
-                currentChat.messages = [];
-                renderChatContent();
-                return;
+            if (messageText) {
+                chatInputElement.value = '';
             }
-            showTypingIndicator();
-            let contextPrompt = promptForApi;
-            if (userMessage.replyTo) {
-                contextPrompt = `[User is replying to a previous ${userMessage.replyTo} command] ${promptForApi}`;
-            }
-            const response = await getBotResponse(contextPrompt, imagesForApi, historyForApi, abortController.signal);
-            removeTypingIndicator();
-            if (response === null) {
-                botResponseData = { role: 'bot', text: 'Ok, I\'ve stopped.' };
-            } else if (response.error) {
-                botResponseData = { role: 'bot', text: response.error.message };
-            } else {
-                let responseText = response.text || "Sorry, I couldn't get a response.";
-                if (userMessage.replyTo) {
-                    responseText = `*Continuing from ${userMessage.replyTo}:*\n\n${responseText}`;
-                }
-                botResponseData = { 
-                    role: 'bot', 
-                    text: responseText,
-                    replyContext: userMessage.originalCommand
-                };
-            }
-            currentChat.messages.push(botResponseData);
-            renderChatContent();
-            saveChats();
-        } catch(error) {
-            removeTypingIndicator();
-            currentChat.messages.push({ role: 'bot', text: 'Something went wrong. Please try again.' });
-            renderChatContent();
-        } finally {
-            abortController = null;
         }
+    }
+
+    if ((!messageText && attachedImages.length === 0) || isOffline) return;
+    resetInputUI();
+
+    let currentChat;
+    if (activeChatId === null) {
+        const newChatId = Date.now().toString();
+        const newChat = { id: newChatId, title: "New Chat", messages: [] };
+        chats.push(newChat);
+        activeChatId = newChatId;
+        currentChat = newChat;
+        renderChatList();
+
+        // Generate intelligent title
+        generateChatTitle(messageText, newChatId);
+    } else {
+        currentChat = chats.find(c => c.id === activeChatId);
+    }
+
+    const imagesForApi = [...attachedImages];
+    const userMessage = { 
+        role: 'user', 
+        text: messageText, 
+        images: imagesForApi.map(img => img.base64),
+        originalCommand: messageText.startsWith('/') ? messageText.split(' ')[0] : null,
+        replyTo: currentReplyContext
     };
-    
+
+    // Clear reply context after using it
+    if (currentReplyContext) {
+        cancelReply();
+    }
+
+    currentChat.messages.push(userMessage);
+
+    const historyForApi = currentChat.messages.slice(0, -1).map(msg => ({
+         role: msg.role, text: msg.text
+    }));
+
+    const promptForApi = messageText;
+    clearImagePreviews();
+    renderChatContent();
+    abortController = new AbortController();
+
+    let botResponseData;
+    try {
+        if (promptForApi.toLowerCase().startsWith('/image')) {
+            const imagePrompt = promptForApi.substring(6).trim();
+            await handleImageCommand(imagePrompt);
+            return;
+        } else if (promptForApi.toLowerCase().startsWith('/video')) {
+            const videoPrompt = promptForApi.substring(6).trim();
+            await handleVideoCommand(videoPrompt);
+            return;
+        } else if (promptForApi.toLowerCase().startsWith('/crypto')) {
+            const coin = promptForApi.substring(7).trim();
+            await handleCryptoCommand(coin);
+            return;
+        } else if (promptForApi.toLowerCase().startsWith('/design')) {
+            await handleDesignCommand();
+            return;
+        } else if (promptForApi.toLowerCase().startsWith('/study')) {
+            const topic = promptForApi.substring(6).trim();
+            await handleStudyCommand(topic);
+            return;
+        } else if (promptForApi.toLowerCase().startsWith('/quiz')) {
+            const topic = promptForApi.substring(5).trim();
+            await handleQuizCommand(topic);
+            return;
+        } else if (promptForApi.toLowerCase().startsWith('/schedule')) {
+            const schedulePrompt = promptForApi.substring(9).trim();
+            await handleScheduleCommand(schedulePrompt);
+            return;
+        } else if (promptForApi.toLowerCase().startsWith('/whiteboard')) {
+            const topic = promptForApi.substring(11).trim();
+            await handleWhiteboardCommand(topic);
+            return;
+        } else if (promptForApi.toLowerCase().startsWith('/recipe')) {
+            const ingredients = promptForApi.substring(7).trim();
+            await handleRecipeCommand(ingredients);
+            return;
+        } else if (promptForApi.toLowerCase() === '/clear') {
+            currentChat.messages = [];
+            renderChatContent();
+            return;
+        }
+
+        showTypingIndicator();
+
+        let contextPrompt = promptForApi;
+        if (userMessage.replyTo) {
+            contextPrompt = `[User is replying to a previous ${userMessage.replyTo} command] ${promptForApi}`;
+        }
+
+        const response = await getBotResponse(contextPrompt, imagesForApi, historyForApi, abortController.signal);
+        removeTypingIndicator();
+
+        if (response === null) {
+            botResponseData = { role: 'bot', text: 'Ok, I\'ve stopped.' };
+        } else if (response.error) {
+            botResponseData = { role: 'bot', text: response.error.message };
+        } else {
+            let responseText = response.text || "Sorry, I couldn't get a response.";
+            if (userMessage.replyTo) {
+                responseText = `*Continuing from ${userMessage.replyTo}:*\n\n${responseText}`;
+            }
+            botResponseData = { 
+                role: 'bot', 
+                text: responseText,
+                replyContext: userMessage.originalCommand
+            };
+        }
+
+        currentChat.messages.push(botResponseData);
+        renderChatContent();
+        saveChats();
+
+    } catch (error) {
+        removeTypingIndicator();
+        currentChat.messages.push({ role: 'bot', text: 'Something went wrong. Please try again.' });
+        renderChatContent();
+    } finally {
+        abortController = null;
+    }
+};
+
     // --- SPECIAL COMMAND HANDLERS ---
     
     const stopCryptoRefresh = () => { if (cryptoRefreshInterval) clearInterval(cryptoRefreshInterval); cryptoRefreshInterval = null; };
@@ -3857,7 +3819,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const user = sessionStorage.getItem('seasworth_user');
         const isAdmin = sessionStorage.getItem('seasworth_is_admin') === 'true';
 
-        document.getElementById('usernameDisplay').textContent = user;
+//document.getElementById('usernameDisplay').textContent.? = user;
         populateCommands(isAdmin); // This function will now run correctly
     };
 

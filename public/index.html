@@ -1288,7 +1288,7 @@ const resetInputUI = () => {
 
     const toggleOnlineStatus = () => { isOffline = !isOffline; appContainer.classList.toggle('offline', isOffline); statusTextElement.textContent = isOffline ? 'Offline' : 'Online'; statusToggleButton.title = isOffline ? 'Go Online' : 'Go Offline'; chatInputElement.disabled = isOffline; sendBtn.disabled = isOffline; chatInputElement.placeholder = isOffline ? 'AI is offline.' : (activeChatId ? 'Type your message...' : 'Start a new conversation...'); };
 
-async function getBotResponse(userMessage) {
+async function getBotResponse(prompt, images = [], history = [], signal) {
     try {
         const response = await fetch('/api/chat', {
             method: 'POST',
@@ -1296,9 +1296,11 @@ async function getBotResponse(userMessage) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                message: userMessage,  // Make sure this line exists and userMessage has a value
-                messages: chatHistory || []  // Include chat history if you have it
-            })
+                prompt: prompt,      // ✅ Use 'prompt' instead of 'message'
+                images: images,      // ✅ Include images array  
+                history: history     // ✅ Use 'history' instead of 'messages'
+            }),
+            signal
         });
 
         if (!response.ok) {
@@ -1306,13 +1308,15 @@ async function getBotResponse(userMessage) {
         }
 
         const data = await response.json();
-        return data.text || 'No response received';
+        return data;
         
     } catch (error) {
         console.error('Error calling chat API:', error);
-        return 'Sorry, I encountered an error. Please try again.';
+        if (error.name === 'AbortError') return null;
+        return { error: { message: `API connection failed: ${error.message}` } };
     }
 }
+
 
 function updateChatTitle(chatId, newTitle) {
   const chat = chats.find(c => c.id === chatId);
@@ -1321,6 +1325,21 @@ function updateChatTitle(chatId, newTitle) {
     saveChats();
     renderChatList(); // Redraw the sidebar
   }
+}
+
+function populateCommands(isAdmin) {
+    // If you have a command list container, populate it
+    const container = document.getElementById('command-list-items');
+    if (container) {
+        container.innerHTML = '';
+        commands.forEach(command => {
+            const commandItem = document.createElement('div');
+            commandItem.classList.add('command-item');
+            commandItem.innerHTML = `${command.icon} <b>${command.name}</b>: ${command.description}`;
+            container.appendChild(commandItem);
+        });
+    }
+    console.log('Commands populated for admin:', isAdmin);
 }
 
 // Also check your handleSendMessage function around line 1467
@@ -3806,7 +3825,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isAdmin = sessionStorage.getItem('seasworth_is_admin') === 'true';
 
 //document.getElementById('usernameDisplay').textContent.? = user;
-        populateCommands(isAdmin); // This function will now run correctly
+
     };
 
     // ... rest of your script ...

@@ -3756,25 +3756,72 @@ const handleSendMessage = async () => {
   const sendBtn = document.querySelector('.send-btn');
   const messagesArea = document.querySelector('.message-area');
 
+// in index.html
+
 async function sendMessage() {
-  const text = messageInput.value.trim();
-  if (!text) return;
+    const userInput = chatInputElement.value.trim();
+    const currentChat = chats.find(c => c.id === activeChatId);
 
-  try {
-    const response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: text,
-        messages: []
-      })
-    });
+    if (!userInput || !currentChat) return;
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    // Add user's message to the local state
+    currentChat.messages.push({ role: 'user', content: userInput });
+    renderChatContent(); // Re-render the UI with the new message
+    chatInputElement.value = ''; // Clear the input field
+
+    // Add a temporary "typing" message for the bot
+    const botMessageId = `bot-${Date.now()}`;
+    currentChat.messages.push({ id: botMessageId, role: 'bot', content: '<div class="typing-indicator"><span></span><span></span><span></span></div>' });
+    renderChatContent();
+
+    // Prepare history for the API (exclude the last "typing" message)
+    // Also, ensure all previous messages use 'content' instead of 'text'
+    const apiHistory = currentChat.messages
+        .slice(0, -1) // Exclude the typing indicator
+        .map(msg => ({
+            role: msg.role,
+            content: msg.content || msg.text // Use content, fallback to text for older messages
+        }));
+
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            // === THIS IS THE CORRECTED BODY ===
+            body: JSON.stringify({
+                message: userInput,     // Use "message" key for the current input
+                messages: apiHistory    // Use "messages" key for the history
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error?.message || 'Network response was not ok');
+        }
+
+        const data = await response.json();
+        const aiResponse = data.text || 'Sorry, something went wrong.';
+
+        // Find the temporary bot message and update its content
+        const botMessage = currentChat.messages.find(m => m.id === botMessageId);
+        if (botMessage) {
+            botMessage.content = aiResponse;
+        }
+
+    } catch (err) {
+        console.error('Error sending message:', err);
+        const botMessage = currentChat.messages.find(m => m.id === botMessageId);
+        if (botMessage) {
+            botMessage.content = `<strong>Error:</strong> ${err.message}`;
+        }
+    } finally {
+        // Re-render the chat and save the final state
+        renderChatContent();
+        saveChats();
     }
+}
 
     const data = await response.json();
     

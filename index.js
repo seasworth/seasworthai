@@ -27,9 +27,20 @@ app.post('/api/chat', async (req, res) => {
       return res.status(400).json({ error: { message: 'Message is required.' }, received: req.body });
     }
 
+    // Filter and validate messages
+    const validMessages = messages.filter(msg => 
+      msg && 
+      msg.role && 
+      (msg.role === 'user' || msg.role === 'assistant') && 
+      (msg.content || msg.text)
+    ).map(msg => ({
+      role: msg.role === 'bot' ? 'assistant' : msg.role,
+      content: msg.content || msg.text
+    }));
+
     const chatMessages = [
-      { role: 'system', content: 'You are a helpful AI assistant.' },
-      ...messages.map(msg => ({ role: msg.role, content: msg.content })),
+      { role: 'system', content: 'You are Seasworth.ai, a helpful AI assistant. You can help with creative tasks, research, learning, crypto information, and general questions. Be friendly and conversational.' },
+      ...validMessages,
       { role: 'user', content: message }
     ];
 

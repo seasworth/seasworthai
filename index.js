@@ -12,33 +12,28 @@ const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 app.use(express.static('public'));
 app.use(express.json({ limit: '50mb' }));
 
-// Chat endpoint with debug logging
+// Chat endpoint
 app.post('/api/chat', async (req, res) => {
-  // Debug log incoming data for every POST
-  console.log('\n=== /api/chat DEBUG ===');
-  console.log('Headers:', req.headers);
-  console.log('Body:', req.body);
-  console.log('Body type:', typeof req.body);
-  console.log('Received "message":', req.body?.message);
-  console.log('======================\n');
   try {
     if (!GROQ_API_KEY) {
-      return res.status(500).json({ error: { message: 'GROQ_API_KEY is not configured.' } });
+      return res.status(500).json({ error: { message: 'GROQ_API_KEY is not configured on the server.' } });
     }
 
     const { message, messages = [] } = req.body;
 
     if (!message) {
-      return res.status(400).json({ error: { message: 'Message is required.' }, received: req.body });
+      return res.status(400).json({ error: { message: 'A message is required in the request body.' }, received: req.body });
     }
 
     const chatMessages = [
       { role: 'system', content: 'You are a helpful AI assistant.' },
-      ...messages,
+      ...messages.map(msg => ({ role: msg.role, content: msg.content })),
       { role: 'user', content: message }
     ];
 
-    const response = await fetch( , {
+    // ================== FIXED CODE BLOCK START ==================
+    // The URL `GROQ_API_URL` and the `Authorization` header were added.
+    const response = await fetch(GROQ_API_URL, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${GROQ_API_KEY}`,
@@ -51,17 +46,21 @@ app.post('/api/chat', async (req, res) => {
         max_tokens: 1000
       }),
     });
+    // =================== FIXED CODE BLOCK END ===================
 
     if (!response.ok) {
-      const errorData = await response.text();
-      return res.status(500).json({ error: { message: 'Failed to get response from AI service.' } });
+      const errorText = await response.text();
+      console.error("Error from Groq API:", errorText);
+      return res.status(response.status).json({ error: { message: `Failed to get a valid response from the AI service. Details: ${errorText}` } });
     }
 
     const data = await response.json();
-    res.json({ text: data.choices[0]?.message?.content || 'No response.' });
+    const botResponse = data.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
+    res.json({ text: botResponse });
+
   } catch (error) {
-    console.error('Chat API error:', error);
-    res.status(500).json({ error: { message: 'Internal server error.' } });
+    console.error('An error occurred in the /api/chat endpoint:', error);
+    res.status(500).json({ error: { message: 'An internal server error occurred.' } });
   }
 });
 
@@ -86,14 +85,6 @@ app.get('/access.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'access.html'));
 });
 
-app.get('/admin.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
-
-app.get('/dev-portal.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dev-portal.html'));
-});
-
 app.listen(PORT, () => {
-  console.log(`Server is running successfully on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });

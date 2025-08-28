@@ -27,7 +27,7 @@
   html, body { height: 100%; margin: 0; background: linear-gradient(180deg, var(--bg1), var(--bg2)); color: #eee; overflow: hidden; }
   a { color: var(--neon); text-decoration: none; }
   .app { display: flex; height: 100vh; width: 100vw; gap: 18px; padding: 28px; align-items: stretch; }
-  .sidebar { width: 300px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)); border-radius: 18px; padding: 22px; border: 1px solid rgba(255, 255, 255, 0.03); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45); display: flex; flex-direction: column; gap: 14px; height: calc(100vh - 56px); opacity: 0; transform: translateX(-30px); animation: slideInLeft 0.8s cubic-bezier(.25, .8, .25, 1) forwards; }
+  .sidebar { width: 300px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)); border-radius: 18px; padding: 22px; border: 1px solid rgba(255, 255, 255, 0.03); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45); display: flex; flex-direction: column; gap: 10px; height: calc(100vh - 56px); opacity: 0; transform: translateX(-30px); animation: slideInLeft 0.8s cubic-bezier(.25, .8, .25, 1) forwards; overflow-y: auto; }
   
   .brand { display: flex; align-items: center; gap: 12px; }
   .brand .title { 
@@ -51,7 +51,7 @@
     background: linear-gradient(135deg, var(--neon), var(--accent2));
     display: flex; align-items: center; justify-content: center;
     font-size: 24px; z-index: 2;
-    animation: rotate-fast 4s linear infinite;
+    animation: gentle-pulse 3s ease-in-out infinite;
   }
   .brand .robot-icon .bg-box {
     background: var(--accent1);
@@ -108,7 +108,7 @@
   }
   .new-chat-btn { width: 100%; padding: 12px; background: var(--accent1); color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.2s; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; }
   .new-chat-btn:hover { background: var(--accent2); box-shadow: 0 0 15px -2px var(--accent1); }
-  .chats { flex: 1; overflow-y: auto; padding-right: 8px; margin-top: 10px; }
+  .chats { flex: 1; overflow-y: auto; padding-right: 8px; margin-top: 10px; min-height: 300px; }
   .chats h3 { margin: 8px 0 10px 4px; font-size: 15px; color: #ddd; font-weight: 700; }
   .chat-item { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 12px; margin-bottom: 8px; cursor: pointer; border: 1px solid transparent; transition: all .18s; position: relative; }
   .chat-item.active, .chat-item:hover { transform: translateX(6px); background: var(--glass); border-color: rgba(255, 255, 255, 0.2); }
@@ -179,19 +179,7 @@
     z-index: 0;
   }
   
-  .floating-dot {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: var(--neon);
-    border-radius: 50%;
-    opacity: 0.4;
-    animation: floatUp 6s linear infinite;
-  }
-  
-  .floating-dot:nth-child(1) { left: 20%; animation-delay: 0s; }
-  .floating-dot:nth-child(2) { left: 50%; animation-delay: 2s; }
-  .floating-dot:nth-child(3) { left: 80%; animation-delay: 4s; }
+
 
 
   .message-area { flex: 1; width: 100%; padding: 30px; overflow-y: auto; display: none; display: flex; flex-direction: column; gap: 20px; }
@@ -260,7 +248,10 @@
   .muted { color: #cfc8ff8a; font-size: 13px; }
   @keyframes rotate-orb { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   @keyframes pulse-core { 0%, 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 8px var(--green-neon); } 50% { transform: translate(-50%, -50%) scale(0.8); box-shadow: 0 0 14px var(--green-neon); } }
-  @keyframes rotate-fast { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes gentle-pulse { 
+    0%, 100% { transform: scale(1); box-shadow: 0 0 10px rgba(181,140,255,0.3); } 
+    50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(181,140,255,0.6); } 
+  }
   @keyframes rotate-slow { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
   @keyframes slideInLeft { to { opacity: 1; transform: none; } }
   @keyframes slideInUp { to { opacity: 1; transform: none; } }
@@ -272,29 +263,193 @@
   
   @keyframes text-glow { 0%, 100% { text-shadow: 0 0 10px rgba(181, 140, 255, 0.3), 0 0 20px rgba(181, 140, 255, 0.2); } 50% { text-shadow: 0 0 20px rgba(181, 140, 255, 0.5), 0 0 40px rgba(181, 140, 255, 0.4); } }
   
-  @keyframes floatUp {
-    0% {
-      transform: translateY(100vh);
-      opacity: 0;
-    }
-    10% {
-      opacity: 0.4;
-    }
-    90% {
-      opacity: 0.4;
-    }
-    100% {
-      transform: translateY(-50px);
-      opacity: 0;
-    }
+
+  
+  /* Enhanced Media Gallery Box */
+  .media-gallery-box {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(122,43,255,0.3);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 12px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 0 rgba(122,43,255,0);
   }
+  
+  .nav-box {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(122,43,255,0.3);
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 6px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  
+  .commands-box {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(122,43,255,0.3);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .media-gallery-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(122,43,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+  
+  .media-gallery-box:hover, .nav-box:hover, .commands-box:hover {
+    transform: translateY(3px) scale(0.98);
+    border-color: var(--neon);
+    box-shadow: 0 0 25px rgba(122,43,255,0.6), inset 0 0 15px rgba(122,43,255,0.3);
+  }
+  
+  .media-gallery-box:hover::before {
+    left: 100%;
+  }
+  
+  .media-gallery-link {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .media-icon {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 4px 15px rgba(122,43,255,0.3);
+    transition: transform 0.3s ease;
+  }
+  
+  .nav-icon {
+    width: 25px;
+    height: 25px;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(122,43,255,0.3);
+    transition: transform 0.3s ease;
+  }
+  
+  .media-gallery-box:hover .media-icon, .nav-box:hover .nav-icon {
+    transform: scale(0.9) rotate(-5deg);
+  }
+  
+  .media-text {
+    flex: 1;
+  }
+  
+  .media-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--neon);
+    margin-bottom: 3px;
+  }
+  
+  .media-subtitle {
+    font-size: 11px;
+    color: #ccc;
+    opacity: 0.8;
+  }
+  
+  .nav-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--neon);
+    margin-bottom: 1px;
+  }
+  
+  .nav-subtitle {
+    font-size: 9px;
+    color: #ccc;
+    opacity: 0.7;
+  }
+  
+  .commands-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--neon);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  
+  .command-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+  
+  .command-item-mini {
+    background: rgba(122,43,255,0.1);
+    border: 1px solid rgba(122,43,255,0.3);
+    border-radius: 6px;
+    padding: 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 10px;
+  }
+  
+  .command-item-mini:hover {
+    background: rgba(122,43,255,0.3);
+    transform: scale(0.95);
+  }
+  
+  .floating-bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(181,140,255,0.6), rgba(122,43,255,0.2));
+    box-shadow: 0 0 20px rgba(181,140,255,0.3);
+    animation: bubble-float 6s ease-in-out infinite;
+    pointer-events: none;
+  }
+  
+  @keyframes bubble-float {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    33% { transform: translateY(-40px) scale(1.1); }
+    66% { transform: translateY(-20px) scale(0.9); }
+  }
+
+  
   @media (max-width: 900px) { 
     .app { padding: 10px; flex-direction: column; } 
     .sidebar { display: none; } 
     .welcome h1 { font-size: 36px; } 
     .welcome-buttons { flex-direction: column; } 
     .composer { padding: 10px; } 
-    .composer-input-area { width: 100%; } 
+    .composer-input-area { width: 100%; }
+    .settings-panel { width: 100%; right: -100%; }
+    .language-selector { grid-template-columns: 1fr; }
+    .footer-tabs { display: flex !important; }
+    .quick-access-box { display: none; }
   }
 </style>
 </head>
@@ -311,7 +466,7 @@
             <div class="title">
             <span>seasworth.ai</span>
             </div>
-            <div class="muted">private • online</div>
+            <div class="muted" id="userGreeting">private • online</div>
         </div>
         </div>
         <div class="status-indicator">
@@ -319,14 +474,51 @@
         <div class="status-text">Online</div>
         </div>
         <button class="new-chat-btn">⊕ New Chat</button>
+        
+        <!-- Media Gallery Box -->
+        <div class="media-gallery-box">
+          <a href="media.html" class="media-gallery-link">
+            <div class="media-icon">🎬</div>
+            <div class="media-text">
+              <div class="media-title">Media Gallery</div>
+              <div class="media-subtitle">View your creations</div>
+            </div>
+          </a>
+        </div>
+        
+
+        
         <div class="chats">
         <h3>Chats</h3>
         </div>
-        <div class="footer-tabs" id="footer-tabs">
-            <button class="footer-tab" onclick="showAbout()">ℹ️ About</button>
-            <button class="footer-tab" onclick="showHelp()">❓ Help</button>
-            <button class="footer-tab" id="dev-portal-tab" onclick="showDevPortal()">⚙️ Dev Portal</button>
-            <button class="footer-tab" onclick="logout()">🚪 Log Out</button>
+        <div class="nav-box" onclick="showAbout()">
+          <div class="media-gallery-link">
+            <div class="nav-icon">📖</div>
+            <div class="media-text">
+              <div class="nav-title">About</div>
+              <div class="nav-subtitle">Learn more</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="nav-box" onclick="showHelp()">
+          <div class="media-gallery-link">
+            <div class="nav-icon">❓</div>
+            <div class="media-text">
+              <div class="nav-title">Help</div>
+              <div class="nav-subtitle">Get support</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="nav-box" onclick="showSettings()">
+          <div class="media-gallery-link">
+            <div class="nav-icon">⚙️</div>
+            <div class="media-text">
+              <div class="nav-title">Settings</div>
+              <div class="nav-subtitle">Preferences</div>
+            </div>
+          </div>
         </div>
     </aside>
     <main class="main">
@@ -356,9 +548,10 @@
         </div>
         
         <div class="bg-effects">
-            <div class="floating-dot"></div>
-            <div class="floating-dot"></div>
-            <div class="floating-dot"></div>
+            <div class="floating-bubble" style="width: 60px; height: 60px; top: 10%; left: 5%; animation-delay: 0s;"></div>
+            <div class="floating-bubble" style="width: 40px; height: 40px; top: 70%; right: 10%; animation-delay: 1s;"></div>
+            <div class="floating-bubble" style="width: 80px; height: 80px; bottom: 20%; left: 15%; animation-delay: 2s;"></div>
+            <div class="floating-bubble" style="width: 30px; height: 30px; top: 40%; right: 5%; animation-delay: 3s;"></div>
         </div>
         </div>
 
@@ -638,13 +831,19 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Clear reply context
         currentReplyContext = null;
-        document.getElementById('reply-bar').style.display = 'none';
+        const replyBar = document.getElementById('reply-bar');
+        if (replyBar) replyBar.style.display = 'none';
         
         // Remove active states from footer tabs and show composer
-        document.querySelector('.footer-tab[onclick="showAbout()"]').classList.remove('active');
-        document.querySelector('.footer-tab[onclick="showHelp()"]').classList.remove('active');
-        document.querySelector('.footer-tab[onclick="showDevPortal()"]').classList.remove('active');
-        document.querySelector('.composer').style.display = 'block';
+        const aboutTab = document.querySelector('.footer-tab[onclick="showAbout()"]');
+        const helpTab = document.querySelector('.footer-tab[onclick="showHelp()"]');
+        const mediaTab = document.querySelector('.footer-tab[onclick="showMedia()"]');
+        const composer = document.querySelector('.composer');
+        
+        if (aboutTab) aboutTab.classList.remove('active');
+        if (helpTab) helpTab.classList.remove('active');
+        if (mediaTab) mediaTab.classList.remove('active');
+        if (composer) composer.style.display = 'block';
     };
     
     const showTypingIndicator = () => { 
@@ -658,7 +857,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const removeTypingIndicator = () => { const ind = messageArea.querySelector('.typing-indicator'); if (ind) ind.remove(); };
     
     const selectChat = (id) => { 
-        if (id === 'about' || id === 'help') return; // Prevent selecting about/help as chats
+        if (id === 'about' || id === 'help' || id === 'settings') return; // Prevent selecting about/help/settings as chats
         
         stopCryptoRefresh(); 
         resetInputUI(); 
@@ -668,9 +867,17 @@ document.addEventListener('DOMContentLoaded', () => {
         chatInputElement.placeholder = 'Type your message...';
         
         // Remove active states from footer tabs and show composer
-        document.querySelector('.footer-tab[onclick="showAbout()"]').classList.remove('active');
-        document.querySelector('.footer-tab[onclick="showHelp()"]').classList.remove('active');
-        document.querySelector('.composer').style.display = 'block';
+        const aboutTab = document.querySelector('.footer-tab[onclick="showAbout()"]');
+        const helpTab = document.querySelector('.footer-tab[onclick="showHelp()"]');
+        const settingsTab = document.querySelector('.footer-tab[onclick="showSettings()"]');
+        const mediaTab = document.querySelector('.footer-tab[onclick="showMedia()"]');
+        const composer = document.querySelector('.composer');
+        
+        if (aboutTab) aboutTab.classList.remove('active');
+        if (helpTab) helpTab.classList.remove('active');
+        if (settingsTab) settingsTab.classList.remove('active');
+        if (mediaTab) mediaTab.classList.remove('active');
+        if (composer) composer.style.display = 'block';
     };
     
     const getBotResponse = async (prompt, images, history, signal) => {
@@ -850,23 +1057,32 @@ document.addEventListener('DOMContentLoaded', () => {
             if (userMessage.replyTo) {
                 contextPrompt = `[User is replying to a previous ${userMessage.replyTo} command] ${promptForApi}`;
             }
-            const response = await getBotResponse(contextPrompt, imagesForApi, historyForApi, abortController.signal);
-            removeTypingIndicator();
-            if (response === null) {
-                botResponseData = { role: 'bot', text: 'Ok, I\'ve stopped.' };
-            } else if (response.error) {
-                botResponseData = { role: 'bot', text: response.error.message };
-            } else {
-                let responseText = response.text || "Sorry, I couldn't get a response.";
-                if (userMessage.replyTo) {
-                    responseText = `*Continuing from ${userMessage.replyTo}:*\n\n${responseText}`;
-                }
-                botResponseData = { 
-                    role: 'bot', 
-                    text: responseText,
-                    replyContext: userMessage.originalCommand
-                };
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: contextPrompt,
+                    messages: historyForApi,
+                    images: imagesForApi
+                })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || 'Network response was not ok');
             }
+            
+            const responseData = await response.json();
+            removeTypingIndicator();
+            let responseText = responseData.text || "Sorry, I couldn't get a response.";
+            if (userMessage.replyTo) {
+                responseText = `*Continuing from ${userMessage.replyTo}:*\n\n${responseText}`;
+            }
+            botResponseData = { 
+                role: 'bot', 
+                text: responseText,
+                replyContext: userMessage.originalCommand
+            };
             currentChat.messages.push(botResponseData);
             renderChatContent();
             saveChats();
@@ -963,9 +1179,16 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`;
         
         // Set active state and show about section
-        document.querySelector('.footer-tab[onclick="showAbout()"]').classList.add('active');
-        document.querySelector('.footer-tab[onclick="showHelp()"]').classList.remove('active');
-        document.querySelector('.composer').style.display = 'none';
+        const aboutTab = document.querySelector('.footer-tab[onclick="showAbout()"]');
+        const helpTab = document.querySelector('.footer-tab[onclick="showHelp()"]');
+        const mediaTab = document.querySelector('.footer-tab[onclick="showMedia()"]');
+        const composer = document.querySelector('.composer');
+        
+        if (aboutTab) aboutTab.classList.add('active');
+        if (helpTab) helpTab.classList.remove('active');
+        if (mediaTab) mediaTab.classList.remove('active');
+        if (composer) composer.style.display = 'none';
+        
         welcomeScreen.style.display = 'none';
         messageArea.style.display = 'flex';
         messageArea.innerHTML = `<div class="message-bubble bot-message"><div class="icon"><div class="status-orb"><div class="orb-core"></div><div class="orb-dot"></div><div class="orb-dot"></div><div class="orb-dot"></div></div></div><div class="message-content">${aboutContent}</div></div>`;
@@ -1000,9 +1223,16 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`;
         
         // Set active state and show help section
-        document.querySelector('.footer-tab[onclick="showHelp()"]').classList.add('active');
-        document.querySelector('.footer-tab[onclick="showAbout()"]').classList.remove('active');
-        document.querySelector('.composer').style.display = 'none';
+        const helpTab = document.querySelector('.footer-tab[onclick="showHelp()"]');
+        const aboutTab = document.querySelector('.footer-tab[onclick="showAbout()"]');
+        const mediaTab = document.querySelector('.footer-tab[onclick="showMedia()"]');
+        const composer = document.querySelector('.composer');
+        
+        if (helpTab) helpTab.classList.add('active');
+        if (aboutTab) aboutTab.classList.remove('active');
+        if (mediaTab) mediaTab.classList.remove('active');
+        if (composer) composer.style.display = 'none';
+        
         welcomeScreen.style.display = 'none';
         messageArea.style.display = 'flex';
         messageArea.innerHTML = `<div class="message-bubble bot-message"><div class="icon"><div class="status-orb"><div class="orb-core"></div><div class="orb-dot"></div><div class="orb-dot"></div><div class="orb-dot"></div></div></div><div class="message-content">${helpContent}</div></div>`;
@@ -1010,27 +1240,127 @@ document.addEventListener('DOMContentLoaded', () => {
         renderChatList();
     };
 
-    window.showDevPortal = () => {
-        const content = `<div class="study-guide-container">
-            <h2>⚙️ Developer Portal</h2>
-            <p><strong>Access Level:</strong> ${isAdmin ? 'Administrator' : 'Standard'} | <strong>User:</strong> ${currentUser}</p>
-            <h3>System Information</h3>
-            <ul>
-                <li><strong>Build Version:</strong> v1.2.0-dev</li>
-                <li><strong>API Endpoint:</strong> /api/chat</li>
-            </ul>
+    window.showMedia = () => {
+        window.location.href = 'media.html';
+    };
+    
+    window.showSettings = () => {
+        const settingsContent = `<div class="study-guide-container">
+            <h2>⚙️ Settings</h2>
+            <div class="setting-group">
+                <h3>🌐 Language</h3>
+                <div class="language-selector">
+                    <div class="lang-option active" onclick="setLanguage('en')">🇺🇸 English</div>
+                    <div class="lang-option" onclick="setLanguage('es')">🇪🇸 Español</div>
+                    <div class="lang-option" onclick="setLanguage('fr')">🇫🇷 Français</div>
+                    <div class="lang-option" onclick="setLanguage('de')">🇩🇪 Deutsch</div>
+                    <div class="lang-option" onclick="setLanguage('it')">🇮🇹 Italiano</div>
+                    <div class="lang-option" onclick="setLanguage('pt')">🇵🇹 Português</div>
+                </div>
+            </div>
+            <div class="setting-group">
+                <h3>🎨 Theme</h3>
+                <button class="setting-btn" onclick="toggleTheme()">🌙 Toggle Theme</button>
+            </div>
+            <div class="setting-group">
+                <h3>🔔 Notifications</h3>
+                <button class="setting-btn" onclick="toggleNotifications()">🔔 Enabled</button>
+            </div>
+            <div class="setting-group">
+                <h3>💾 Data</h3>
+                <button class="setting-btn" onclick="clearAllData()">🗑️ Clear All Data</button>
+                <button class="setting-btn" onclick="exportData()">📤 Export Data</button>
+            </div>
         </div>`;
         
-        // Set active state and show dev portal
-        document.querySelector('.footer-tab[onclick="showAbout()"]').classList.remove('active');
-        document.querySelector('.footer-tab[onclick="showHelp()"]').classList.remove('active');
-        document.querySelector('.footer-tab[onclick="showDevPortal()"]').classList.add('active');
-        document.querySelector('.composer').style.display = 'none';
+        // Set active state and show settings section
+        const settingsTab = document.querySelector('.footer-tab[onclick="showSettings()"]');
+        const aboutTab = document.querySelector('.footer-tab[onclick="showAbout()"]');
+        const helpTab = document.querySelector('.footer-tab[onclick="showHelp()"]');
+        const mediaTab = document.querySelector('.footer-tab[onclick="showMedia()"]');
+        const composer = document.querySelector('.composer');
+        
+        if (settingsTab) settingsTab.classList.add('active');
+        if (aboutTab) aboutTab.classList.remove('active');
+        if (helpTab) helpTab.classList.remove('active');
+        if (mediaTab) mediaTab.classList.remove('active');
+        if (composer) composer.style.display = 'none';
+        
         welcomeScreen.style.display = 'none';
         messageArea.style.display = 'flex';
-        messageArea.innerHTML = `<div class="message-bubble bot-message"><div class="icon"><div class="status-orb"><div class="orb-core"></div><div class="orb-dot"></div><div class="orb-dot"></div><div class="orb-dot"></div></div></div><div class="message-content">${content}</div></div>`;
-        activeChatId = 'dev-portal';
+        messageArea.innerHTML = `<div class="message-bubble bot-message"><div class="icon"><div class="status-orb"><div class="orb-core"></div><div class="orb-dot"></div><div class="orb-dot"></div><div class="orb-dot"></div></div></div><div class="message-content">${settingsContent}</div></div>`;
+        activeChatId = 'settings';
         renderChatList();
+    };
+    
+    window.showDevPortal = () => {
+        if (currentUser === 'seasworthisthegoat') {
+            window.location.href = 'dev-portal.html';
+        } else {
+            alert('Access denied. Developer portal is restricted.');
+        }
+    };
+    
+    window.toggleSettings = () => {
+        const panel = document.getElementById('settingsPanel');
+        panel.classList.toggle('open');
+    };
+    
+    window.setLanguage = (lang) => {
+        document.querySelectorAll('.lang-option').forEach(opt => opt.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        // Save language preference
+        localStorage.setItem('seasworth_user_language', JSON.stringify({
+            code: lang,
+            name: event.target.textContent
+        }));
+        
+        // Update UI language (you can expand this)
+        console.log('Language changed to:', lang);
+    };
+    
+    window.toggleTheme = () => {
+        // Theme toggle functionality
+        const isDark = document.body.classList.toggle('light-theme');
+        localStorage.setItem('seasworth_theme', isDark ? 'light' : 'dark');
+    };
+    
+    window.toggleNotifications = () => {
+        const enabled = localStorage.getItem('seasworth_notifications') !== 'false';
+        localStorage.setItem('seasworth_notifications', !enabled);
+        event.target.textContent = enabled ? '🔕 Disabled' : '🔔 Enabled';
+    };
+    
+    window.clearAllData = () => {
+        if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+            localStorage.clear();
+            sessionStorage.clear();
+            alert('All data cleared successfully!');
+            window.location.reload();
+        }
+    };
+    
+    window.exportData = () => {
+        const data = {
+            chats: chats,
+            settings: {
+                language: localStorage.getItem('seasworth_user_language'),
+                theme: localStorage.getItem('seasworth_theme'),
+                notifications: localStorage.getItem('seasworth_notifications')
+            },
+            userData: localStorage.getItem('userData')
+        };
+        
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `seasworth-data-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
 
     const init = () => {
@@ -1052,8 +1382,44 @@ document.addEventListener('DOMContentLoaded', () => {
         currentUser = username;
         isAdmin = isAdminUser;
         
-        // Show access & support portal for all users
-        document.getElementById('dev-portal-tab').style.display = 'block';
+        // Show personalized greeting
+        const userData = localStorage.getItem('userData');
+        if (userData) {
+            const user = JSON.parse(userData);
+            const userName = user.name || user.firstName || username;
+            document.getElementById('userGreeting').textContent = `Hello, ${userName} • online`;
+        }
+        
+        // Show dev portal for admin user
+        if (currentUser === 'seasworthisthegoat') {
+            const devPortalBtn = document.getElementById('devPortalBtn');
+            if (devPortalBtn) devPortalBtn.style.display = 'block';
+        }
+        
+        // Load saved language
+        const savedLang = localStorage.getItem('seasworth_user_language');
+        if (savedLang) {
+            const langData = JSON.parse(savedLang);
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                opt.classList.remove('active');
+                if (opt.textContent.includes(langData.name) || opt.onclick.toString().includes(langData.code)) {
+                    opt.classList.add('active');
+                }
+            });
+        }
+        
+        // Load saved theme
+        const savedTheme = localStorage.getItem('seasworth_theme');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-theme');
+        }
+        
+        // Load notification preference
+        const notificationsEnabled = localStorage.getItem('seasworth_notifications') !== 'false';
+        const notifBtn = document.querySelector('.setting-btn[onclick="toggleNotifications()"]');
+        if (notifBtn) {
+            notifBtn.textContent = notificationsEnabled ? '🔔 Enabled' : '🔕 Disabled';
+        }
         
         loadChats();
         showWelcomeScreen();
@@ -1073,8 +1439,13 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('reply-bar').style.display = 'none';
             
             // Remove active states from footer tabs
-            document.querySelector('.footer-tab[onclick="showAbout()"]').classList.remove('active');
-            document.querySelector('.footer-tab[onclick="showHelp()"]').classList.remove('active');
+            const aboutTab = document.querySelector('.footer-tab[onclick="showAbout()"]');
+            const helpTab = document.querySelector('.footer-tab[onclick="showHelp()"]');
+            const mediaTab = document.querySelector('.footer-tab[onclick="showMedia()"]');
+            
+            if (aboutTab) aboutTab.classList.remove('active');
+            if (helpTab) helpTab.classList.remove('active');
+            if (mediaTab) mediaTab.classList.remove('active');
         });
         sendBtn.addEventListener('click', handleSendMessage);
         chatInputElement.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } });
@@ -1110,9 +1481,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleImageAttachment(e.target.files);
             }
         });
-        document.addEventListener('click', () => {
+        document.addEventListener('click', (e) => {
             if(attachmentMenu.classList.contains('show')) {
                 attachmentMenu.classList.remove('show');
+            }
+            
+            // Close settings panel when clicking outside
+            const settingsPanel = document.getElementById('settingsPanel');
+            const settingsBtn = document.querySelector('.footer-tab[onclick="toggleSettings()"]');
+            
+            if (settingsPanel && !settingsPanel.contains(e.target) && !settingsBtn.contains(e.target)) {
+                settingsPanel.classList.remove('open');
             }
         });
     };
@@ -1122,12 +1501,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-    #command-selector { display: none; position: absolute; bottom: 95px; left: 30px; width: calc(100% - 60px); max-height: 300px; overflow-y: auto; background: rgba(15, 25, 45, 0.95); border: 1px solid rgba(64, 128, 255, 0.4); border-radius: 16px; box-shadow: 0 -10px 40px rgba(0,0,0,0.6), 0 0 20px rgba(15, 25, 45, 0.8); padding: 12px; z-index: 9999; backdrop-filter: blur(15px); }
-    .command-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; }
-    .command-item:hover { background: rgba(122,43,255,0.2); border-color: rgba(122,43,255,0.5); transform: translateX(4px); box-shadow: 0 4px 15px rgba(122,43,255,0.2); }
-    .command-icon { width: 36px; height: 36px; font-size: 20px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent1), var(--accent2)); border-radius: 8px; box-shadow: 0 4px 12px rgba(122,43,255,0.3); }
-    .command-name { font-weight: 700; color: #fff; font-size: 15px; }
-    .command-desc { font-size: 13px; color: #ccc; margin-top: 2px; }
+
     .message-content img.generated-image { max-width: 400px; max-height: 400px; border-radius: 8px; margin-top: 10px; cursor: pointer; transition: transform 0.2s ease-in-out; }
     .message-content img.generated-image:hover { transform: scale(1.03); }
     .action-buttons { display: flex; gap: 8px; margin-top: 12px; }
@@ -1313,5 +1687,436 @@ document.addEventListener('DOMContentLoaded', () => {
         color: #000 !important;
         box-shadow: 0 0 15px var(--neon);
         font-weight: 600;
+    }
+    
+    /* Enhanced footer tabs */
+    .footer-tabs {
+        display: none;
+        gap: 8px;
+        margin-top: auto;
+        padding: 15px 0;
+        border-top: 1px solid rgba(122,43,255,0.3);
+    }
+    .footer-tab {
+        padding: 10px 15px;
+        background: rgba(0,0,0,0.3);
+        border: 1px solid rgba(122,43,255,0.3);
+        color: #ccc;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-align: center;
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+    }
+    .footer-tab::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(122,43,255,0.3), transparent);
+        transition: left 0.5s;
+    }
+    .footer-tab:hover {
+        background: rgba(122,43,255,0.2);
+        border-color: var(--neon);
+        color: var(--neon);
+        transform: translateY(-2px);
+        box-shadow: 0 0 15px rgba(122,43,255,0.5);
+    }
+    .footer-tab:hover::before {
+        left: 100%;
+    }
+    .footer-tab:active {
+        transform: translateY(0);
+        box-shadow: 0 0 25px rgba(122,43,255,0.8);
+    }
+    
+    /* Enhanced command selector */
+    #command-selector {
+        display: none;
+        position: absolute;
+        bottom: 95px;
+        left: 30px;
+        width: calc(100% - 60px);
+        max-height: 350px;
+        overflow-y: auto;
+        background: rgba(15, 25, 45, 0.95);
+        border: 1px solid rgba(122,43,255,0.4);
+        border-radius: 16px;
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.6), 0 0 25px rgba(122,43,255,0.6);
+        padding: 15px;
+        z-index: 9999;
+        backdrop-filter: blur(15px);
+    }
+    .command-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+        margin-bottom: 8px;
+    }
+    .command-item:hover {
+        background: rgba(122,43,255,0.2);
+        border-color: var(--neon);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(122,43,255,0.4);
+    }
+    .command-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--accent1), var(--accent2));
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(122,43,255,0.3);
+        flex-shrink: 0;
+    }
+    .command-name {
+        font-weight: 700;
+        color: #fff;
+        font-size: 15px;
+        margin-bottom: 2px;
+    }
+    .command-desc {
+        font-size: 13px;
+        color: #ccc;
+        line-height: 1.3;
+    }
+    
+    /* Enhanced delete button */
+    .delete-chat-btn {
+        display: none;
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255,59,59,0.2);
+        border: 1px solid var(--red-neon);
+        color: var(--red-neon);
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        opacity: 0;
+    }
+    .chat-item:hover .delete-chat-btn {
+        display: flex;
+        opacity: 1;
+    }
+    .delete-chat-btn:hover {
+        background: var(--red-neon);
+        color: #fff;
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 0 15px var(--red-neon);
+    }
+    
+    /* Media panel styling */
+    .media-panel {
+        background: rgba(0,0,0,0.2);
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid rgba(122,43,255,0.3);
+        margin: 10px 0;
+    }
+    .media-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid rgba(122,43,255,0.3);
+        padding-bottom: 10px;
+    }
+    .media-tab {
+        padding: 8px 16px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(122,43,255,0.3);
+        color: #ccc;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .media-tab.active {
+        background: var(--accent1);
+        color: white;
+        border-color: var(--neon);
+    }
+    .media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+    }
+    .media-item {
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+    }
+    .media-item:hover {
+        border-color: var(--neon);
+        transform: translateY(-2px);
+    }
+    .media-item img {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+    
+    /* Media button styling */
+    .media-btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background: rgba(122,43,255,0.2);
+        color: var(--neon);
+        border: 1px solid rgba(122,43,255,0.3);
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-bottom: 10px;
+        text-decoration: none;
+        text-align: center;
+    }
+    .media-btn:hover {
+        background: rgba(122,43,255,0.3);
+        border-color: var(--neon);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(122,43,255,0.3);
+    }
+    
+    /* Enhanced footer tabs background */
+    .footer-tabs {
+        display: flex;
+        gap: 6px;
+        margin-top: auto;
+        padding: 15px;
+        border-top: 1px solid rgba(122,43,255,0.3);
+        background: rgba(0,0,0,0.2);
+        border-radius: 12px 12px 0 0;
+    }
+    .footer-tab {
+        padding: 10px 12px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+        border: 1px solid rgba(122,43,255,0.3);
+        color: #ccc;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-align: center;
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+    }
+    .footer-tab::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(122,43,255,0.3), transparent);
+        transition: left 0.5s;
+    }
+    .footer-tab:hover {
+        background: rgba(122,43,255,0.2);
+        border-color: var(--neon);
+        color: var(--neon);
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 8px 25px rgba(122,43,255,0.4);
+    }
+    .footer-tab:hover::before {
+        left: 100%;
+    }
+    .footer-tab:active {
+        transform: translateY(-1px) scale(1.02);
+        box-shadow: 0 0 25px rgba(122,43,255,0.8);
+    }
+    .footer-tab.active {
+        background: var(--neon) !important;
+        border-color: var(--neon) !important;
+        color: #000 !important;
+        box-shadow: 0 0 15px var(--neon);
+        font-weight: 700;
+    }
+    
+    /* Quick Access Boxes */
+    .quick-access-box {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+        border: 1px solid rgba(122,43,255,0.3);
+        border-radius: 16px;
+        padding: 15px;
+        margin-bottom: 10px;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+    
+    .quick-access-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(122,43,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .quick-access-box:hover {
+        transform: translateY(-3px) scale(1.02);
+        border-color: var(--neon);
+        box-shadow: 0 8px 25px rgba(122,43,255,0.4);
+    }
+    
+    .quick-access-box:hover::before {
+        left: 100%;
+    }
+    
+    .quick-access-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .quick-access-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--accent1), var(--accent2));
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        box-shadow: 0 4px 15px rgba(122,43,255,0.3);
+        transition: transform 0.3s ease;
+    }
+    
+    .quick-access-box:hover .quick-access-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+    
+    .quick-access-text {
+        flex: 1;
+    }
+    
+    .quick-access-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--neon);
+        margin-bottom: 2px;
+    }
+    
+    .quick-access-subtitle {
+        font-size: 11px;
+        color: #ccc;
+        opacity: 0.8;
+    }
+    
+    /* Interactive tab animations */
+    .interactive-tab {
+        animation: tab-breathe 4s ease-in-out infinite;
+    }
+    .interactive-tab:nth-child(1) { animation-delay: 0s; }
+    .interactive-tab:nth-child(2) { animation-delay: 1s; }
+    .interactive-tab:nth-child(3) { animation-delay: 2s; }
+    .interactive-tab:nth-child(4) { animation-delay: 3s; }
+    
+    /* Show footer tabs on mobile */
+    @media (max-width: 900px) {
+        .footer-tabs {
+            display: flex !important;
+        }
+        .quick-access-box {
+            display: none;
+        }
+    }
+    
+    @keyframes tab-breathe {
+        0%, 100% { box-shadow: 0 0 5px rgba(122,43,255,0.2); }
+        50% { box-shadow: 0 0 15px rgba(122,43,255,0.4); }
+    }
+    
+    /* Settings styles */
+    .setting-group {
+        margin-bottom: 25px;
+        padding: 20px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(122,43,255,0.2);
+        border-radius: 12px;
+    }
+    .setting-group h3 {
+        color: var(--neon);
+        margin-bottom: 15px;
+        font-size: 16px;
+    }
+    .language-selector {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 8px;
+        margin-top: 10px;
+    }
+    .lang-option {
+        padding: 8px 12px;
+        background: rgba(122,43,255,0.2);
+        border: 1px solid rgba(122,43,255,0.3);
+        border-radius: 8px;
+        color: #ccc;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    .lang-option:hover, .lang-option.active {
+        background: var(--accent1);
+        color: #fff;
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(122,43,255,0.5);
+    }
+    .setting-btn {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, rgba(122,43,255,0.3), rgba(58,0,255,0.3));
+        border: 1px solid rgba(122,43,255,0.5);
+        border-radius: 8px;
+        color: var(--neon);
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+    }
+    .setting-btn:hover {
+        background: linear-gradient(135deg, var(--accent1), var(--accent2));
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(122,43,255,0.4);
     }
 </style>

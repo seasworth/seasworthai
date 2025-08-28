@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Choose your language - seasworth.ai</title>
+<style>
+  :root {
+    --bg1: #0b0426;
+    --bg2: #16082f;
+    --accent1: #7a2bff;
+    --accent2: #3a00ff;
+    --neon: #b58cff;
+    --purple-neon: #9d4edd;
+    --font-main: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  
+  * { box-sizing: border-box; font-family: var(--font-main); }
+  html, body { height: 100%; margin: 0; background: linear-gradient(180deg, var(--bg1), var(--bg2)); color: #eee; overflow-x: hidden; }
+  
+  .setup-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 40px 20px;
+    position: relative;
+  }
+  
+  .floating-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  .particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--neon);
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+  .particle:nth-child(2) { left: 20%; animation-delay: 1s; }
+  .particle:nth-child(3) { left: 30%; animation-delay: 2s; }
+  .particle:nth-child(4) { left: 40%; animation-delay: 3s; }
+  .particle:nth-child(5) { left: 50%; animation-delay: 4s; }
+  .particle:nth-child(6) { left: 60%; animation-delay: 5s; }
+  .particle:nth-child(7) { left: 70%; animation-delay: 0.5s; }
+  .particle:nth-child(8) { left: 80%; animation-delay: 1.5s; }
+  .particle:nth-child(9) { left: 90%; animation-delay: 2.5s; }
+  
+  .content-section {
+    text-align: center;
+    max-width: 800px;
+    width: 100%;
+    opacity: 0;
+    animation: fadeInUp 1s ease-out 0.5s forwards;
+  }
+  
+  .logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    margin-bottom: 20px;
+  }
+  
+  .main-question {
+    font-size: 42px;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 15px;
+    opacity: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    border-right: 3px solid var(--neon);
+    animation: typeWriter 3s ease-out 1s forwards, text-glow 3s ease-in-out 4s infinite, blink-caret 1s step-end 4s infinite;
+  }
+  
+  .subtitle {
+    font-size: 18px;
+    color: #ccc;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeInUp 1s ease-out 2s forwards;
+  }
+  
+  .language-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeInUp 1s ease-out 2.5s forwards;
+  }
+  
+  .language-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border: 2px solid rgba(122,43,255,0.3);
+    border-radius: 16px;
+    padding: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .language-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(122,43,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+  
+  .language-card:hover {
+    border-color: var(--neon);
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(181, 140, 255, 0.4);
+  }
+  
+  .language-card:hover::before {
+    left: 100%;
+  }
+  
+  .language-card.selected {
+    border-color: var(--purple-neon);
+    background: linear-gradient(135deg, rgba(157, 78, 221, 0.2), rgba(157, 78, 221, 0.1));
+    box-shadow: 0 0 30px rgba(157, 78, 221, 0.5);
+  }
+  
+  .language-flag {
+    font-size: 48px;
+    margin-bottom: 15px;
+    display: block;
+  }
+  
+  .language-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  
+  .language-native {
+    font-size: 24px;
+    color: var(--neon);
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+  
+  .language-code {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .continue-btn {
+    padding: 18px 40px;
+    background: linear-gradient(145deg, var(--purple-neon), #7209b7);
+    border: none;
+    border-radius: 50px;
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 30px rgba(157, 78, 221, 0.5);
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeInUp 1s ease-out 3s forwards;
+    margin-bottom: 20px;
+  }
+  
+  .continue-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 40px rgba(157, 78, 221, 0.8);
+  }
+  
+  .continue-btn:active {
+    transform: translateY(-1px) scale(1.02);
+  }
+  
+  .continue-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+  
+  .continue-btn:hover::before {
+    left: 100%;
+  }
+  
+  .skip-link {
+    color: #888;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+    opacity: 0;
+    animation: fadeInUp 1s ease-out 3.5s forwards;
+  }
+  
+  .skip-link:hover {
+    color: var(--neon);
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes typeWriter {
+    0% {
+      opacity: 1;
+      width: 0;
+    }
+    99% {
+      opacity: 1;
+      width: 100%;
+      border-right: 3px solid var(--neon);
+    }
+    100% {
+      opacity: 1;
+      width: 100%;
+      border-right: none;
+    }
+  }
+  
+  @keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: var(--neon); }
+  }
+  
+  @keyframes text-glow {
+    0%, 100% { text-shadow: 0 0 10px rgba(181, 140, 255, 0.3), 0 0 20px rgba(181, 140, 255, 0.2); }
+    50% { text-shadow: 0 0 20px rgba(181, 140, 255, 0.5), 0 0 40px rgba(181, 140, 255, 0.4); }
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    33% { transform: translateY(-20px) rotate(120deg); }
+    66% { transform: translateY(10px) rotate(240deg); }
+  }
+  
+  @media (max-width: 768px) {
+    .main-question { font-size: 32px; }
+    .language-grid { grid-template-columns: 1fr; }
+    .continue-btn { padding: 15px 35px; font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+  <div class="floating-particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+
+  <div class="setup-container">
+    <div class="content-section">
+      <img src="https://i.ibb.co/WWb0TZwK/seasworth-ai-logo.jpg" alt="Seasworth AI Logo" class="logo">
+      
+      <h1 class="main-question">Choose your language</h1>
+      <p class="subtitle">Select your preferred language for the best experience</p>
+      
+      <div class="language-grid">
+        <div class="language-card" onclick="selectLanguage('en', 'English', 'English')">
+          <span class="language-flag">🇺🇸</span>
+          <div class="language-name">English</div>
+          <div class="language-native">English</div>
+          <div class="language-code">EN</div>
+        </div>
+        
+        <div class="language-card" onclick="selectLanguage('hi', 'Hindi', 'हिन्दी')">
+          <span class="language-flag">🇮🇳</span>
+          <div class="language-name">Hindi</div>
+          <div class="language-native">हिन्दी</div>
+          <div class="language-code">HI</div>
+        </div>
+        
+        <div class="language-card" onclick="selectLanguage('mr', 'Marathi', 'मराठी')">
+          <span class="language-flag">🇮🇳</span>
+          <div class="language-name">Marathi</div>
+          <div class="language-native">मराठी</div>
+          <div class="language-code">MR</div>
+        </div>
+        
+        <div class="language-card" onclick="selectLanguage('kn', 'Kannada', 'ಕನ್ನಡ')">
+          <span class="language-flag">🇮🇳</span>
+          <div class="language-name">Kannada</div>
+          <div class="language-native">ಕನ್ನಡ</div>
+          <div class="language-code">KN</div>
+        </div>
+        
+        <div class="language-card" onclick="selectLanguage('ta', 'Tamil', 'தமிழ்')">
+          <span class="language-flag">🇮🇳</span>
+          <div class="language-name">Tamil</div>
+          <div class="language-native">தமிழ்</div>
+          <div class="language-code">TA</div>
+        </div>
+        
+        <div class="language-card" onclick="selectLanguage('sa', 'Sanskrit', 'संस्कृतम्')">
+          <span class="language-flag">🇮🇳</span>
+          <div class="language-name">Sanskrit</div>
+          <div class="language-native">संस्कृतम्</div>
+          <div class="language-code">SA</div>
+        </div>
+        
+        <div class="language-card" onclick="selectLanguage('ml', 'Malayalam', 'മലയാളം')">
+          <span class="language-flag">🇮🇳</span>
+          <div class="language-name">Malayalam</div>
+          <div class="language-native">മലയാളം</div>
+          <div class="language-code">ML</div>
+        </div>
+        
+        <div class="language-card" onclick="selectLanguage('es', 'Spanish', 'Español')">
+          <span class="language-flag">🇪🇸</span>
+          <div class="language-name">Spanish</div>
+          <div class="language-native">Español</div>
+          <div class="language-code">ES</div>
+        </div>
+        
+        <div class="language-card" onclick="selectLanguage('fr', 'French', 'Français')">
+          <span class="language-flag">🇫🇷</span>
+          <div class="language-name">French</div>
+          <div class="language-native">Français</div>
+          <div class="language-code">FR</div>
+        </div>
+        
+        <div class="language-card" onclick="selectLanguage('de', 'German', 'Deutsch')">
+          <span class="language-flag">🇩🇪</span>
+          <div class="language-name">German</div>
+          <div class="language-native">Deutsch</div>
+          <div class="language-code">DE</div>
+        </div>
+        
+        <div class="language-card" onclick="selectLanguage('ja', 'Japanese', '日本語')">
+          <span class="language-flag">🇯🇵</span>
+          <div class="language-name">Japanese</div>
+          <div class="language-native">日本語</div>
+          <div class="language-code">JA</div>
+        </div>
+        
+        <div class="language-card" onclick="selectLanguage('zh', 'Chinese', '中文')">
+          <span class="language-flag">🇨🇳</span>
+          <div class="language-name">Chinese</div>
+          <div class="language-native">中文</div>
+          <div class="language-code">ZH</div>
+        </div>
+      </div>
+      
+      <button class="continue-btn" onclick="saveLanguage()" id="continueBtn" style="opacity: 0.5; cursor: not-allowed;" disabled>✨ Continue to seasworth.ai</button>
+      
+      <a href="#" class="skip-link" onclick="skipLanguage()">Skip for now</a>
+    </div>
+  </div>
+
+  <script>
+    let selectedLanguage = null;
+
+    function selectLanguage(code, name, native) {
+      // Remove previous selection
+      document.querySelectorAll('.language-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      
+      // Add selection to clicked card
+      event.target.closest('.language-card').classList.add('selected');
+      
+      selectedLanguage = { code, name, native };
+      
+      // Enable continue button
+      const continueBtn = document.getElementById('continueBtn');
+      continueBtn.style.opacity = '1';
+      continueBtn.style.cursor = 'pointer';
+      continueBtn.disabled = false;
+    }
+
+    function saveLanguage() {
+      if (selectedLanguage) {
+        localStorage.setItem('seasworth_user_language', JSON.stringify(selectedLanguage));
+        sessionStorage.setItem('seasworth_language', selectedLanguage.code);
+      }
+      
+      // Mark setup as complete and redirect to main app
+      localStorage.setItem('seasworth_setup_complete', 'true');
+      window.location.href = 'index.html';
+    }
+
+    function skipLanguage() {
+      // Default to English
+      const defaultLang = { code: 'en', name: 'English', native: 'English' };
+      localStorage.setItem('seasworth_user_language', JSON.stringify(defaultLang));
+      sessionStorage.setItem('seasworth_language', 'en');
+      localStorage.setItem('seasworth_setup_complete', 'true');
+      window.location.href = 'index.html';
+    }
+
+    // Add particle mouse interaction
+    document.addEventListener('mousemove', (e) => {
+      const particles = document.querySelectorAll('.particle');
+      particles.forEach((particle, index) => {
+        const speed = (index + 1) * 0.02;
+        const x = (e.clientX * speed) % window.innerWidth;
+        const y = (e.clientY * speed) % window.innerHeight;
+        particle.style.transform = `translate(${x}px, ${y}px)`;
+      });
+    });
+  </script>
+</body>
+</html>

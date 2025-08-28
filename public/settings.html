@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Settings - seasworth.ai</title>
+<style>
+  :root {
+    --bg1: #0b0426;
+    --bg2: #16082f;
+    --accent1: #7a2bff;
+    --accent2: #3a00ff;
+    --neon: #b58cff;
+    --purple-neon: #9d4edd;
+    --font-main: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  
+  * { box-sizing: border-box; font-family: var(--font-main); }
+  html, body { height: 100%; margin: 0; background: linear-gradient(180deg, var(--bg1), var(--bg2)); color: #eee; overflow-x: hidden; }
+  
+  .settings-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    min-height: 100vh;
+    position: relative;
+  }
+  
+  .settings-header {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .back-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(122,43,255,0.3);
+    border: 1px solid rgba(122,43,255,0.5);
+    color: var(--neon);
+    padding: 12px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+  }
+  
+  .back-btn:hover {
+    background: var(--accent1);
+    color: white;
+    transform: translateX(-5px);
+    box-shadow: 0 0 20px rgba(122,43,255,0.6);
+  }
+  
+  .settings-title {
+    font-size: 48px;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 10px;
+    animation: text-glow 3s ease-in-out infinite;
+    position: relative;
+  }
+  
+  .settings-emoji {
+    font-size: 60px;
+    display: inline-block;
+    margin-right: 15px;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .settings-emoji:hover {
+    transform: rotate(180deg) scale(1.2);
+    filter: drop-shadow(0 0 20px var(--neon));
+  }
+  
+  .settings-subtitle {
+    font-size: 18px;
+    color: #ccc;
+    margin-bottom: 40px;
+  }
+  
+  .settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+  }
+  
+  .setting-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(122,43,255,0.3);
+    border-radius: 20px;
+    padding: 30px;
+    backdrop-filter: blur(15px);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .setting-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(122,43,255,0.1), transparent);
+    transition: left 0.6s;
+  }
+  
+  .setting-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--neon);
+    box-shadow: 0 10px 30px rgba(122,43,255,0.3);
+  }
+  
+  .setting-card:hover::before {
+    left: 100%;
+  }
+  
+  .setting-card-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .setting-icon {
+    font-size: 32px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 5px 15px rgba(122,43,255,0.4);
+  }
+  
+  .setting-card-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--neon);
+    margin: 0;
+  }
+  
+  .setting-description {
+    color: #ccc;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  
+  .language-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .lang-option {
+    padding: 12px 16px;
+    background: rgba(122,43,255,0.2);
+    border: 1px solid rgba(122,43,255,0.3);
+    border-radius: 10px;
+    color: #ccc;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    font-weight: 600;
+  }
+  
+  .lang-option:hover, .lang-option.active {
+    background: var(--accent1);
+    color: #fff;
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(122,43,255,0.4);
+  }
+  
+  .setting-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(122,43,255,0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .setting-toggle:hover {
+    background: rgba(122,43,255,0.1);
+    border-color: var(--neon);
+  }
+  
+  .toggle-switch {
+    position: relative;
+    width: 60px;
+    height: 30px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .toggle-switch.active {
+    background: var(--accent1);
+  }
+  
+  .toggle-slider {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  }
+  
+  .toggle-switch.active .toggle-slider {
+    transform: translateX(30px);
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  
+  .action-btn {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, rgba(122,43,255,0.3), rgba(58,0,255,0.3));
+    border: 1px solid rgba(122,43,255,0.5);
+    border-radius: 10px;
+    color: var(--neon);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .action-btn:hover {
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(122,43,255,0.4);
+  }
+  
+  .action-btn.danger {
+    background: linear-gradient(135deg, rgba(255,59,59,0.3), rgba(200,0,0,0.3));
+    border-color: #ff3b3b;
+    color: #ff3b3b;
+  }
+  
+  .action-btn.danger:hover {
+    background: linear-gradient(135deg, #ff3b3b, #c50000);
+    color: white;
+  }
+  
+  .floating-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--neon);
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: float 8s ease-in-out infinite;
+  }
+  
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(181,140,255,0.6), rgba(122,43,255,0.2));
+    box-shadow: 0 0 20px rgba(181,140,255,0.3);
+    animation: bubble-float 6s ease-in-out infinite;
+  }
+  
+  .light-beam {
+    position: absolute;
+    width: 2px;
+    height: 100px;
+    background: linear-gradient(to bottom, transparent, var(--neon), transparent);
+    animation: light-move 4s linear infinite;
+    opacity: 0.4;
+  }
+  
+  @keyframes text-glow {
+    0%, 100% { text-shadow: 0 0 10px rgba(181, 140, 255, 0.3), 0 0 20px rgba(181, 140, 255, 0.2); }
+    50% { text-shadow: 0 0 20px rgba(181, 140, 255, 0.5), 0 0 40px rgba(181, 140, 255, 0.4); }
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+    25% { transform: translateY(-30px) rotate(90deg); opacity: 1; }
+    50% { transform: translateY(-60px) rotate(180deg); opacity: 0.8; }
+    75% { transform: translateY(-30px) rotate(270deg); opacity: 1; }
+  }
+  
+  @keyframes bubble-float {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    33% { transform: translateY(-40px) scale(1.1); }
+    66% { transform: translateY(-20px) scale(0.9); }
+  }
+  
+  @keyframes light-move {
+    0% { transform: translateX(-100vw) rotate(45deg); }
+    100% { transform: translateX(100vw) rotate(45deg); }
+  }
+  
+  @media (max-width: 768px) {
+    .settings-container { padding: 20px 15px; }
+    .settings-title { font-size: 36px; }
+    .settings-grid { grid-template-columns: 1fr; gap: 20px; }
+    .setting-card { padding: 20px; }
+    .language-grid { grid-template-columns: repeat(2, 1fr); }
+    .back-btn { position: relative; top: 0; left: 0; margin-bottom: 20px; }
+  }
+</style>
+</head>
+<body>
+  <div class="floating-particles">
+    <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="particle" style="left: 20%; animation-delay: 1s;"></div>
+    <div class="particle" style="left: 30%; animation-delay: 2s;"></div>
+    <div class="particle" style="left: 40%; animation-delay: 3s;"></div>
+    <div class="particle" style="left: 50%; animation-delay: 4s;"></div>
+    <div class="particle" style="left: 60%; animation-delay: 5s;"></div>
+    <div class="particle" style="left: 70%; animation-delay: 0.5s;"></div>
+    <div class="particle" style="left: 80%; animation-delay: 1.5s;"></div>
+    <div class="particle" style="left: 90%; animation-delay: 2.5s;"></div>
+    
+    <div class="bubble" style="width: 60px; height: 60px; top: 10%; left: 5%; animation-delay: 0s;"></div>
+    <div class="bubble" style="width: 40px; height: 40px; top: 70%; right: 10%; animation-delay: 1s;"></div>
+    <div class="bubble" style="width: 80px; height: 80px; bottom: 20%; left: 15%; animation-delay: 2s;"></div>
+    <div class="bubble" style="width: 30px; height: 30px; top: 40%; right: 5%; animation-delay: 3s;"></div>
+    
+    <div class="light-beam" style="top: 20%; left: 10%; animation-delay: 0s;"></div>
+    <div class="light-beam" style="top: 60%; left: 70%; animation-delay: 2s;"></div>
+    <div class="light-beam" style="top: 80%; left: 30%; animation-delay: 4s;"></div>
+  </div>
+
+  <div class="settings-container">
+    <a href="index.html" class="back-btn">
+      ← Back to Chat
+    </a>
+    
+    <div class="settings-header">
+      <h1 class="settings-title">
+        <span class="settings-emoji">⚙️</span>Settings
+      </h1>
+      <p class="settings-subtitle">Customize your seasworth.ai experience</p>
+    </div>
+    
+    <div class="settings-grid">
+      <div class="setting-card">
+        <div class="setting-card-header">
+          <div class="setting-icon">🌐</div>
+          <h3 class="setting-card-title">Language</h3>
+        </div>
+        <p class="setting-description">Choose your preferred language for the interface</p>
+        <div class="language-grid">
+          <div class="lang-option active" onclick="setLanguage('en')">English</div>
+          <div class="lang-option" onclick="setLanguage('hi')">हिन्दी</div>
+          <div class="lang-option" onclick="setLanguage('es')">Español</div>
+          <div class="lang-option" onclick="setLanguage('fr')">Français</div>
+          <div class="lang-option" onclick="setLanguage('de')">Deutsch</div>
+          <div class="lang-option" onclick="setLanguage('ja')">日本語</div>
+          <div class="lang-option" onclick="setLanguage('zh')">中文</div>
+          <div class="lang-option" onclick="setLanguage('mr')">मराठी</div>
+          <div class="lang-option" onclick="setLanguage('kn')">ಕನ್ನಡ</div>
+          <div class="lang-option" onclick="setLanguage('ta')">தமிழ்</div>
+          <div class="lang-option" onclick="setLanguage('ml')">മലയാളം</div>
+          <div class="lang-option" onclick="setLanguage('sa')">संस्कृतम्</div>
+        </div>
+      </div>
+      
+      <div class="setting-card">
+        <div class="setting-card-header">
+          <div class="setting-icon">🎨</div>
+          <h3 class="setting-card-title">Appearance</h3>
+        </div>
+        <p class="setting-description">Customize the look and feel of your interface</p>
+        <div class="setting-toggle" onclick="toggleTheme()">
+          <span>Dark Mode</span>
+          <div class="toggle-switch active">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+        <div class="setting-toggle" onclick="toggleAnimations()">
+          <span>Animations</span>
+          <div class="toggle-switch active">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="setting-card">
+        <div class="setting-card-header">
+          <div class="setting-icon">🔔</div>
+          <h3 class="setting-card-title">Notifications</h3>
+        </div>
+        <p class="setting-description">Manage your notification preferences</p>
+        <div class="setting-toggle" onclick="toggleNotifications()">
+          <span>Enable Notifications</span>
+          <div class="toggle-switch active">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+        <div class="setting-toggle" onclick="toggleSounds()">
+          <span>Sound Effects</span>
+          <div class="toggle-switch">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="setting-card">
+        <div class="setting-card-header">
+          <div class="setting-icon">🤖</div>
+          <h3 class="setting-card-title">AI Preferences</h3>
+        </div>
+        <p class="setting-description">Configure AI behavior and responses</p>
+        <div class="setting-toggle" onclick="toggleDetailedResponses()">
+          <span>Detailed Responses</span>
+          <div class="toggle-switch active">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+        <div class="setting-toggle" onclick="toggleAutoSave()">
+          <span>Auto-save Chats</span>
+          <div class="toggle-switch active">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="setting-card">
+        <div class="setting-card-header">
+          <div class="setting-icon">🔒</div>
+          <h3 class="setting-card-title">Privacy & Security</h3>
+        </div>
+        <p class="setting-description">Manage your privacy and security settings</p>
+        <div class="action-buttons">
+          <button class="action-btn" onclick="clearChatHistory()">🗑️ Clear Chat History</button>
+          <button class="action-btn" onclick="exportData()">📤 Export Data</button>
+          <button class="action-btn" onclick="showPrivacyPolicy()">📋 Privacy Policy</button>
+        </div>
+      </div>
+      
+      <div class="setting-card">
+        <div class="setting-card-header">
+          <div class="setting-icon">👤</div>
+          <h3 class="setting-card-title">Account</h3>
+        </div>
+        <p class="setting-description">Manage your account and profile</p>
+        <div class="action-buttons">
+          <a href="media.html" class="action-btn">🎬 Media Gallery</a>
+          <button class="action-btn" onclick="showAbout()">ℹ️ About</button>
+          <button class="action-btn" onclick="showHelp()">❓ Help</button>
+          <button class="action-btn danger" onclick="logout()">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Settings functionality
+    function setLanguage(lang) {
+      document.querySelectorAll('.lang-option').forEach(opt => opt.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      localStorage.setItem('seasworth_user_language', JSON.stringify({
+        code: lang,
+        name: event.target.textContent
+      }));
+      
+      console.log('Language changed to:', lang);
+    }
+    
+    function toggleTheme() {
+      const toggle = event.currentTarget.querySelector('.toggle-switch');
+      const isDark = toggle.classList.toggle('active');
+      document.body.classList.toggle('light-theme', !isDark);
+      localStorage.setItem('seasworth_theme', isDark ? 'dark' : 'light');
+    }
+    
+    function toggleAnimations() {
+      const toggle = event.currentTarget.querySelector('.toggle-switch');
+      toggle.classList.toggle('active');
+      const enabled = toggle.classList.contains('active');
+      localStorage.setItem('seasworth_animations', enabled);
+      
+      if (!enabled) {
+        document.body.style.setProperty('--animation-duration', '0s');
+      } else {
+        document.body.style.removeProperty('--animation-duration');
+      }
+    }
+    
+    function toggleNotifications() {
+      const toggle = event.currentTarget.querySelector('.toggle-switch');
+      toggle.classList.toggle('active');
+      const enabled = toggle.classList.contains('active');
+      localStorage.setItem('seasworth_notifications', enabled);
+    }
+    
+    function toggleSounds() {
+      const toggle = event.currentTarget.querySelector('.toggle-switch');
+      toggle.classList.toggle('active');
+      const enabled = toggle.classList.contains('active');
+      localStorage.setItem('seasworth_sounds', enabled);
+    }
+    
+    function toggleDetailedResponses() {
+      const toggle = event.currentTarget.querySelector('.toggle-switch');
+      toggle.classList.toggle('active');
+      const enabled = toggle.classList.contains('active');
+      localStorage.setItem('seasworth_detailed_responses', enabled);
+    }
+    
+    function toggleAutoSave() {
+      const toggle = event.currentTarget.querySelector('.toggle-switch');
+      toggle.classList.toggle('active');
+      const enabled = toggle.classList.contains('active');
+      localStorage.setItem('seasworth_auto_save', enabled);
+    }
+    
+    function clearChatHistory() {
+      if (confirm('Are you sure you want to clear all chat history? This action cannot be undone.')) {
+        localStorage.removeItem('seasworth_chats_v4');
+        alert('Chat history cleared successfully!');
+      }
+    }
+    
+    function exportData() {
+      const data = {
+        chats: JSON.parse(localStorage.getItem('seasworth_chats_v4') || '[]'),
+        settings: {
+          language: localStorage.getItem('seasworth_user_language'),
+          theme: localStorage.getItem('seasworth_theme'),
+          notifications: localStorage.getItem('seasworth_notifications')
+        }
+      };
+      
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'seasworth-data-export.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    
+    function showPrivacyPolicy() {
+      alert('Privacy Policy: Your data is stored locally on your device. We do not collect or share personal information.');
+    }
+    
+    function showAbout() {
+      window.location.href = 'index.html#about';
+    }
+    
+    function showHelp() {
+      window.location.href = 'index.html#help';
+    }
+    
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        sessionStorage.removeItem('seasworth_logged_in');
+        sessionStorage.removeItem('seasworth_user');
+        sessionStorage.removeItem('seasworth_is_admin');
+        window.location.href = 'login.html';
+      }
+    }
+    
+    // Load saved settings on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load language
+      const savedLang = localStorage.getItem('seasworth_user_language');
+      if (savedLang) {
+        const langData = JSON.parse(savedLang);
+        document.querySelectorAll('.lang-option').forEach(opt => {
+          opt.classList.remove('active');
+          if (opt.textContent.includes(langData.name)) {
+            opt.classList.add('active');
+          }
+        });
+      }
+      
+      // Load theme
+      const savedTheme = localStorage.getItem('seasworth_theme');
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        document.querySelector('[onclick="toggleTheme()"] .toggle-switch').classList.remove('active');
+      }
+      
+      // Load other settings
+      const animations = localStorage.getItem('seasworth_animations');
+      if (animations === 'false') {
+        document.querySelector('[onclick="toggleAnimations()"] .toggle-switch').classList.remove('active');
+      }
+      
+      const notifications = localStorage.getItem('seasworth_notifications');
+      if (notifications === 'false') {
+        document.querySelector('[onclick="toggleNotifications()"] .toggle-switch').classList.remove('active');
+      }
+      
+      const sounds = localStorage.getItem('seasworth_sounds');
+      if (sounds === 'true') {
+        document.querySelector('[onclick="toggleSounds()"] .toggle-switch').classList.add('active');
+      }
+      
+      const detailedResponses = localStorage.getItem('seasworth_detailed_responses');
+      if (detailedResponses === 'false') {
+        document.querySelector('[onclick="toggleDetailedResponses()"] .toggle-switch').classList.remove('active');
+      }
+      
+      const autoSave = localStorage.getItem('seasworth_auto_save');
+      if (autoSave === 'false') {
+        document.querySelector('[onclick="toggleAutoSave()"] .toggle-switch').classList.remove('active');
+      }
+    });
+  </script>
+</body>
+</html>

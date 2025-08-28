@@ -16,16 +16,17 @@
   }
   
   * { box-sizing: border-box; font-family: var(--font-main); }
-  html, body { height: 100%; margin: 0; background: linear-gradient(180deg, var(--bg1), var(--bg2)); color: #eee; overflow: hidden; }
+  html, body { height: 100%; margin: 0; background: linear-gradient(180deg, var(--bg1), var(--bg2)); color: #eee; overflow-x: hidden; }
   
   .landing-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100vh;
-    padding: 20px;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 40px 20px;
     position: relative;
+    overflow-y: auto;
   }
   
   .logo-section {
@@ -61,13 +62,14 @@
     max-width: 800px;
     width: 100%;
     margin-bottom: 50px;
+    padding: 0 20px;
   }
   
   .feature-item {
     display: flex;
     align-items: center;
-    padding: 15px 25px;
-    margin: 10px 0;
+    padding: 18px 30px;
+    margin: 15px 0;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
     border: 1px solid rgba(122,43,255,0.3);
     border-radius: 16px;
@@ -163,6 +165,117 @@
     left: 100%;
   }
   
+  .settings-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, rgba(122,43,255,0.3), rgba(58,0,255,0.3));
+    border: 1px solid rgba(122,43,255,0.5);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--neon);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+  
+  .settings-btn:hover {
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 0 20px rgba(122,43,255,0.6);
+  }
+  
+  .settings-panel {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 350px;
+    height: 100vh;
+    background: linear-gradient(135deg, rgba(11,4,38,0.95), rgba(22,8,47,0.95));
+    backdrop-filter: blur(20px);
+    border-left: 1px solid rgba(122,43,255,0.3);
+    padding: 80px 30px 30px;
+    transition: right 0.4s ease;
+    z-index: 999;
+    overflow-y: auto;
+  }
+  
+  .settings-panel.open {
+    right: 0;
+  }
+  
+  .settings-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--neon);
+    margin-bottom: 30px;
+    text-align: center;
+  }
+  
+  .setting-group {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(122,43,255,0.2);
+    border-radius: 12px;
+  }
+  
+  .setting-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 10px;
+    display: block;
+  }
+  
+  .language-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  
+  .lang-option {
+    padding: 8px 12px;
+    background: rgba(122,43,255,0.2);
+    border: 1px solid rgba(122,43,255,0.3);
+    border-radius: 8px;
+    color: #ccc;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+  }
+  
+  .lang-option:hover, .lang-option.active {
+    background: var(--purple-neon);
+    color: #fff;
+    transform: scale(1.05);
+  }
+  
+  .setting-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, rgba(122,43,255,0.3), rgba(58,0,255,0.3));
+    border: 1px solid rgba(122,43,255,0.5);
+    border-radius: 8px;
+    color: var(--neon);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+  }
+  
+  .setting-btn:hover {
+    background: linear-gradient(135deg, var(--purple-neon), #7209b7);
+    color: #fff;
+  }
+  
   .floating-particles {
     position: absolute;
     top: 0;
@@ -183,15 +296,28 @@
     animation: float 6s ease-in-out infinite;
   }
   
-  .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
-  .particle:nth-child(2) { left: 20%; animation-delay: 1s; }
-  .particle:nth-child(3) { left: 30%; animation-delay: 2s; }
-  .particle:nth-child(4) { left: 40%; animation-delay: 3s; }
-  .particle:nth-child(5) { left: 50%; animation-delay: 4s; }
-  .particle:nth-child(6) { left: 60%; animation-delay: 5s; }
-  .particle:nth-child(7) { left: 70%; animation-delay: 0.5s; }
-  .particle:nth-child(8) { left: 80%; animation-delay: 1.5s; }
-  .particle:nth-child(9) { left: 90%; animation-delay: 2.5s; }
+  .ball {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(181,140,255,0.8), rgba(122,43,255,0.4));
+    box-shadow: 0 0 20px rgba(181,140,255,0.3);
+    animation: bounce 4s ease-in-out infinite;
+  }
+  
+  .ball:nth-child(1) { width: 60px; height: 60px; top: 10%; left: 5%; animation-delay: 0s; }
+  .ball:nth-child(2) { width: 40px; height: 40px; top: 70%; right: 10%; animation-delay: 1s; }
+  .ball:nth-child(3) { width: 80px; height: 80px; bottom: 20%; left: 15%; animation-delay: 2s; }
+  .ball:nth-child(4) { width: 30px; height: 30px; top: 40%; right: 5%; animation-delay: 3s; }
+  
+  .particle:nth-child(5) { left: 10%; animation-delay: 0s; }
+  .particle:nth-child(6) { left: 20%; animation-delay: 1s; }
+  .particle:nth-child(7) { left: 30%; animation-delay: 2s; }
+  .particle:nth-child(8) { left: 40%; animation-delay: 3s; }
+  .particle:nth-child(9) { left: 50%; animation-delay: 4s; }
+  .particle:nth-child(10) { left: 60%; animation-delay: 5s; }
+  .particle:nth-child(11) { left: 70%; animation-delay: 0.5s; }
+  .particle:nth-child(12) { left: 80%; animation-delay: 1.5s; }
+  .particle:nth-child(13) { left: 90%; animation-delay: 2.5s; }
   
   @keyframes fadeInUp {
     from {
@@ -226,132 +352,202 @@
     66% { transform: translateY(10px) rotate(240deg); }
   }
   
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    25% { transform: translateY(-30px) scale(1.1); }
+    50% { transform: translateY(0px) scale(0.9); }
+    75% { transform: translateY(-15px) scale(1.05); }
+  }
+  
   @media (max-width: 768px) {
     .main-title { font-size: 36px; }
     .features-container { padding: 0 10px; }
     .feature-item { padding: 12px 20px; }
     .feature-icon { font-size: 20px; }
-    .cta-text { font-size: 18px; }
-    .im-in-btn { padding: 15px 35px; font-size: 16px; }
+text { font-size: 18px; }
+    .im-in-btn { padding: 15px 30px; font-size: 16px; }
+    .settings-panel { width: 300px; padding: 70px 20px 20px; }
   }
 </style>
 </head>
 <body>
-  <div class="floating-particles">
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-    <div class="particle"></div>
-  </div>
-
   <div class="landing-container">
+    <div class="floating-particles">
+      <div class="ball"></div>
+      <div class="ball"></div>
+      <div class="ball"></div>
+      <div class="ball"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+    </div>
+
     <div class="logo-section">
-      <img src="https://i.ibb.co/WWb0TZwK/seasworth-ai-logo.jpg" alt="Seasworth AI Logo" class="logo">
-      <h1 class="main-title">seasworth<span style="color: rgba(0,128,255,0.8);">.ai</span></h1>
-      <p class="subtitle">Your AI-powered study companion</p>
+      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23b58cff;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%237a2bff;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Ctext x='50' y='60' font-family='Arial,sans-serif' font-size='40' font-weight='bold' text-anchor='middle' fill='white'%3ES%3C/text%3E%3C/svg%3E" alt="Seasworth.ai Logo" class="logo">
+      <h1 class="main-title">seasworth.ai</h1>
+      <p class="subtitle">Your AI-powered maritime intelligence platform</p>
     </div>
 
     <div class="features-container">
       <div class="feature-item">
-        <div class="feature-icon">🎨</div>
+        <div class="feature-icon">🌊</div>
         <div class="feature-content">
-          <div class="feature-title">Generate Images</div>
-          <div class="feature-command">/image [your prompt]</div>
+          <div class="feature-title">Maritime Analytics</div>
+          <div>Real-time vessel tracking and route optimization</div>
+          <div class="feature-command">track --vessel MV-ATLANTIC --route optimize</div>
         </div>
       </div>
       
       <div class="feature-item">
-        <div class="feature-icon">📚</div>
+        <div class="feature-icon">🤖</div>
         <div class="feature-content">
-          <div class="feature-title">Create Study Guides</div>
-          <div class="feature-command">/study [topic]</div>
+          <div class="feature-title">AI Assistant</div>
+          <div>Intelligent maritime operations support</div>
+          <div class="feature-command">ai --query "weather forecast port miami"</div>
         </div>
       </div>
       
       <div class="feature-item">
-        <div class="feature-icon">🧠</div>
+        <div class="feature-icon">📊</div>
         <div class="feature-content">
-          <div class="feature-title">Interactive Quizzes</div>
-          <div class="feature-command">/quiz [topic]</div>
+          <div class="feature-title">Data Insights</div>
+          <div>Advanced analytics and predictive modeling</div>
+          <div class="feature-command">analyze --data cargo --predict demand</div>
         </div>
       </div>
       
       <div class="feature-item">
-        <div class="feature-icon">💰</div>
+        <div class="feature-icon">🛡️</div>
         <div class="feature-content">
-          <div class="feature-title">Crypto Tracking</div>
-          <div class="feature-command">/crypto [coin name]</div>
+          <div class="feature-title">Security Monitoring</div>
+          <div>24/7 maritime security and compliance</div>
+          <div class="feature-command">security --monitor --alerts high</div>
+        </div>
+      </div>
+      
+      <div class="feature-item">
+        <div class="feature-icon">⚓</div>
+        <div class="feature-content">
+          <div class="feature-title">Port Management</div>
+          <div>Streamlined port operations and logistics</div>
+          <div class="feature-command">port --status --berth availability</div>
         </div>
       </div>
       
       <div class="feature-item">
         <div class="feature-icon">🌐</div>
         <div class="feature-content">
-          <div class="feature-title">Web Research</div>
-          <div class="feature-command">/research [query]</div>
-        </div>
-      </div>
-      
-      <div class="feature-item">
-        <div class="feature-icon">🎯</div>
-        <div class="feature-content">
-          <div class="feature-title">Design Templates</div>
-          <div class="feature-command">/design</div>
+          <div class="feature-title">Global Network</div>
+          <div>Worldwide maritime data integration</div>
+          <div class="feature-command">network --global --sync realtime</div>
         </div>
       </div>
     </div>
 
     <div class="cta-section">
-      <p class="cta-text">Ready to supercharge your learning?</p>
-      <button class="im-in-btn" onclick="enterApp()">✨ I'm in!</button>
+      <div class="cta-text">Ready to revolutionize your maritime operations?</div>
+      <button class="im-in-btn" onclick="window.location.href='name-setup.html'">I'm In!</button>
+    </div>
+
+    <div class="settings-btn" onclick="toggleSettings()">⚙️</div>
+  </div>
+
+  <div class="settings-panel" id="settingsPanel">
+    <div class="settings-title">Settings</div>
+    
+    <div class="setting-group">
+      <label class="setting-label">Language</label>
+      <div class="language-selector">
+        <div class="lang-option active" onclick="setLanguage('en')">English</div>
+        <div class="lang-option" onclick="setLanguage('es')">Español</div>
+        <div class="lang-option" onclick="setLanguage('fr')">Français</div>
+        <div class="lang-option" onclick="setLanguage('de')">Deutsch</div>
+        <div class="lang-option" onclick="setLanguage('zh')">中文</div>
+        <div class="lang-option" onclick="setLanguage('ja')">日本語</div>
+      </div>
+    </div>
+    
+    <div class="setting-group">
+      <label class="setting-label">Theme</label>
+      <button class="setting-btn" onclick="toggleTheme()">Switch to Light Mode</button>
+    </div>
+    
+    <div class="setting-group">
+      <label class="setting-label">Notifications</label>
+      <button class="setting-btn" onclick="toggleNotifications()">Enable Notifications</button>
+    </div>
+    
+    <div class="setting-group">
+      <label class="setting-label">Data</label>
+      <button class="setting-btn" onclick="clearData()">Clear Local Data</button>
     </div>
   </div>
 
   <script>
-    function enterApp() {
-      // Add click animation
-      const btn = document.querySelector('.im-in-btn');
-      btn.style.transform = 'scale(0.95)';
-      
-      // Mark that user has seen the landing page
-      localStorage.setItem('seasworth_seen_landing', 'true');
-      
-      setTimeout(() => {
-        // Check if user is already logged in
-        if (localStorage.getItem('seasworth_logged_in') === 'true') {
-          window.location.href = 'index.html';
-        } else {
-          window.location.href = 'login.html?from=landing';
-        }
-      }, 200);
+    function toggleSettings() {
+      const panel = document.getElementById('settingsPanel');
+      panel.classList.toggle('open');
     }
 
-    // Add some interactive particle effects on mouse move
-    document.addEventListener('mousemove', (e) => {
-      const particles = document.querySelectorAll('.particle');
-      const mouseX = e.clientX / window.innerWidth;
-      const mouseY = e.clientY / window.innerHeight;
+    function setLanguage(lang) {
+      document.querySelectorAll('.lang-option').forEach(opt => opt.classList.remove('active'));
+      event.target.classList.add('active');
+      localStorage.setItem('language', lang);
+    }
+
+    function toggleTheme() {
+      const btn = event.target;
+      const isDark = btn.textContent.includes('Light');
+      btn.textContent = isDark ? 'Switch to Dark Mode' : 'Switch to Light Mode';
+      localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    }
+
+    function toggleNotifications() {
+      const btn = event.target;
+      const isEnabled = btn.textContent.includes('Enable');
+      btn.textContent = isEnabled ? 'Disable Notifications' : 'Enable Notifications';
+      localStorage.setItem('notifications', isEnabled ? 'enabled' : 'disabled');
+    }
+
+    function clearData() {
+      if (confirm('Are you sure you want to clear all local data?')) {
+        localStorage.clear();
+        alert('Local data cleared successfully!');
+      }
+    }
+
+    // Load saved settings
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedLang = localStorage.getItem('language') || 'en';
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      const savedNotifications = localStorage.getItem('notifications') || 'disabled';
       
-      particles.forEach((particle, index) => {
-        const speed = (index + 1) * 0.5;
-        const x = mouseX * speed;
-        const y = mouseY * speed;
-        
-        particle.style.transform = `translate(${x}px, ${y}px)`;
-      });
+      document.querySelector(`[onclick="setLanguage('${savedLang}')"]`)?.classList.add('active');
+      
+      if (savedTheme === 'light') {
+        document.querySelector('[onclick="toggleTheme()"]').textContent = 'Switch to Dark Mode';
+      }
+      
+      if (savedNotifications === 'enabled') {
+        document.querySelector('[onclick="toggleNotifications()"]').textContent = 'Disable Notifications';
+      }
     });
 
-    // Auto-redirect if already logged in
-    if (localStorage.getItem('seasworth_logged_in') === 'true') {
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 3000); // Let them see the animation first
-    }
+    // Close settings panel when clicking outside
+    document.addEventListener('click', function(event) {
+      const panel = document.getElementById('settingsPanel');
+      const settingsBtn = document.querySelector('.settings-btn');
+      
+      if (!panel.contains(event.target) && !settingsBtn.contains(event.target)) {
+        panel.classList.remove('open');
+      }
+    });
   </script>
 </body>
 </html>

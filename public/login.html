@@ -321,12 +321,22 @@
 
             if (users[username] && users[username].password === password) {
                 sessionStorage.setItem('seasworth_logged_in', 'true');
+                sessionStorage.setItem('seasworth_user', username);
                 sessionStorage.setItem('seasworth_username', username);
                 sessionStorage.setItem('seasworth_password', password);
                 sessionStorage.setItem('seasworth_is_admin', users[username].isAdmin);
-                window.location.href = 'index.html';
+                
+                // Check if setup is complete
+                const setupComplete = localStorage.getItem('seasworth_setup_complete');
+                const userData = localStorage.getItem('userData');
+                
+                if (setupComplete === 'true' && userData) {
+                    window.location.href = 'index.html';
+                } else {
+                    window.location.href = 'name-setup.html';
+                }
             } else {
-                alert('Invalid credentials');
+                alert('Invalid credentials. Please check your username and password.');
             }
         });
 

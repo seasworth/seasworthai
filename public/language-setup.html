@@ -415,9 +415,9 @@
         sessionStorage.setItem('seasworth_language', selectedLanguage.code);
       }
       
-      // Mark setup as complete and redirect to main app
+      // Mark setup as complete and redirect to login
       localStorage.setItem('seasworth_setup_complete', 'true');
-      window.location.href = 'index.html';
+      window.location.href = 'login.html';
     }
 
     function skipLanguage() {
@@ -426,7 +426,7 @@
       localStorage.setItem('seasworth_user_language', JSON.stringify(defaultLang));
       sessionStorage.setItem('seasworth_language', 'en');
       localStorage.setItem('seasworth_setup_complete', 'true');
-      window.location.href = 'index.html';
+      window.location.href = 'login.html';
     }
 
     // Add particle mouse interaction

@@ -1165,17 +1165,20 @@ document.addEventListener('DOMContentLoaded', () => {
     window.showAbout = () => {
         const aboutContent = `<div class="study-guide-container">
             <h2>🤖 About Seasworth.AI</h2>
-            <p>Seasworth.AI is your intelligent study companion and AI assistant, developed by <strong>Himesh</strong>.</p>
-            <h3>Features</h3>
+            <p>Seasworth.AI is your intelligent AI companion and productivity assistant, developed by <strong>Himesh</strong> in 2024.</p>
+            <h3>✨ Latest Features</h3>
             <ul>
-                <li>🎨 <strong>Image Generation</strong> - Create images from text prompts</li>
-                <li>📚 <strong>Study Guides</strong> - Generate comprehensive study materials</li>
-                <li>🧠 <strong>Interactive Quizzes</strong> - Test your knowledge with custom quizzes</li>
-                <li>💰 <strong>Crypto Tracking</strong> - Real-time cryptocurrency prices</li>
-                <li>🌐 <strong>Web Research</strong> - Search and summarize information</li>
-                <li>🎨 <strong>Design Tools</strong> - Quick access to Canva templates</li>
+                <li>🎨 <strong>AI Image Generation</strong> - Create stunning visuals from text prompts</li>
+                <li>🎬 <strong>Video Creation</strong> - Generate videos with AI technology</li>
+                <li>📚 <strong>Smart Study Guides</strong> - Comprehensive learning materials</li>
+                <li>🧠 <strong>Interactive Quizzes</strong> - Personalized knowledge testing</li>
+                <li>💰 <strong>Crypto Analytics</strong> - Real-time market data and insights</li>
+                <li>🌐 <strong>Web Research</strong> - Intelligent information gathering</li>
+                <li>📋 <strong>Digital Whiteboard</strong> - Interactive collaboration tools</li>
+                <li>🍳 <strong>Recipe Generator</strong> - Custom recipes based on ingredients</li>
             </ul>
-            <p><strong>Version:</strong> 1.0 | <strong>Powered by:</strong> Groq AI, ClipDrop, CoinGecko</p>
+            <p><strong>Version:</strong> 2.1 | <strong>Last Updated:</strong> December 2024</p>
+            <p><strong>Powered by:</strong> Groq AI, Advanced ML Models, Real-time APIs</p>
         </div>`;
         
         // Set active state and show about section
@@ -1367,13 +1370,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clear reply context on page load
         currentReplyContext = null;
         document.getElementById('reply-bar').style.display = 'none';
-        // Check if user is logged in
+        
+        // Check setup completion status
+        const setupComplete = localStorage.getItem('seasworth_setup_complete');
         const isLoggedIn = sessionStorage.getItem('seasworth_logged_in');
         const username = sessionStorage.getItem('seasworth_user');
         const isAdminUser = sessionStorage.getItem('seasworth_is_admin') === 'true';
         
+        // If setup is not complete, redirect to landing
+        if (!setupComplete) {
+            window.location.href = 'landing.html';
+            return;
+        }
+        
+        // If setup complete but not logged in, redirect to login
         if (!isLoggedIn) {
-            // Redirect to login page
             window.location.href = 'login.html';
             return;
         }
@@ -1764,6 +1775,7 @@ document.addEventListener('DOMContentLoaded', () => {
         transition: all 0.2s ease;
         border: 1px solid transparent;
         margin-bottom: 8px;
+        background: rgba(0,0,0,0.2);
     }
     .command-item:hover {
         background: rgba(122,43,255,0.2);

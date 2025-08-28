@@ -1248,52 +1248,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     window.showSettings = () => {
-        const settingsContent = `<div class="study-guide-container">
-            <h2>⚙️ Settings</h2>
-            <div class="setting-group">
-                <h3>🌐 Language</h3>
-                <div class="language-selector">
-                    <div class="lang-option active" onclick="setLanguage('en')">🇺🇸 English</div>
-                    <div class="lang-option" onclick="setLanguage('es')">🇪🇸 Español</div>
-                    <div class="lang-option" onclick="setLanguage('fr')">🇫🇷 Français</div>
-                    <div class="lang-option" onclick="setLanguage('de')">🇩🇪 Deutsch</div>
-                    <div class="lang-option" onclick="setLanguage('it')">🇮🇹 Italiano</div>
-                    <div class="lang-option" onclick="setLanguage('pt')">🇵🇹 Português</div>
-                </div>
-            </div>
-            <div class="setting-group">
-                <h3>🎨 Theme</h3>
-                <button class="setting-btn" onclick="toggleTheme()">🌙 Toggle Theme</button>
-            </div>
-            <div class="setting-group">
-                <h3>🔔 Notifications</h3>
-                <button class="setting-btn" onclick="toggleNotifications()">🔔 Enabled</button>
-            </div>
-            <div class="setting-group">
-                <h3>💾 Data</h3>
-                <button class="setting-btn" onclick="clearAllData()">🗑️ Clear All Data</button>
-                <button class="setting-btn" onclick="exportData()">📤 Export Data</button>
-            </div>
-        </div>`;
-        
-        // Set active state and show settings section
-        const settingsTab = document.querySelector('.footer-tab[onclick="showSettings()"]');
-        const aboutTab = document.querySelector('.footer-tab[onclick="showAbout()"]');
-        const helpTab = document.querySelector('.footer-tab[onclick="showHelp()"]');
-        const mediaTab = document.querySelector('.footer-tab[onclick="showMedia()"]');
-        const composer = document.querySelector('.composer');
-        
-        if (settingsTab) settingsTab.classList.add('active');
-        if (aboutTab) aboutTab.classList.remove('active');
-        if (helpTab) helpTab.classList.remove('active');
-        if (mediaTab) mediaTab.classList.remove('active');
-        if (composer) composer.style.display = 'none';
-        
-        welcomeScreen.style.display = 'none';
-        messageArea.style.display = 'flex';
-        messageArea.innerHTML = `<div class="message-bubble bot-message"><div class="icon"><div class="status-orb"><div class="orb-core"></div><div class="orb-dot"></div><div class="orb-dot"></div><div class="orb-dot"></div></div></div><div class="message-content">${settingsContent}</div></div>`;
-        activeChatId = 'settings';
-        renderChatList();
+        window.location.href = 'settings.html';
     };
     
     window.showDevPortal = () => {
@@ -1377,17 +1332,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = sessionStorage.getItem('seasworth_user');
         const isAdminUser = sessionStorage.getItem('seasworth_is_admin') === 'true';
         
+        // Debug navigation flow
+        console.log('Setup complete:', setupComplete);
+        console.log('Is logged in:', isLoggedIn);
+        console.log('Username:', username);
+        
         // If setup is not complete, redirect to landing
         if (!setupComplete) {
+            console.log('Redirecting to landing - setup not complete');
             window.location.href = 'landing.html';
             return;
         }
         
         // If setup complete but not logged in, redirect to login
         if (!isLoggedIn) {
+            console.log('Redirecting to login - not logged in');
             window.location.href = 'login.html';
             return;
         }
+        
+        console.log('Proceeding to main app');
         
         // Set user info
         currentUser = username;

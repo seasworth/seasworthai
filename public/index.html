@@ -1332,26 +1332,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = sessionStorage.getItem('seasworth_user');
         const isAdminUser = sessionStorage.getItem('seasworth_is_admin') === 'true';
         
-        // Debug navigation flow
-        console.log('Setup complete:', setupComplete);
-        console.log('Is logged in:', isLoggedIn);
-        console.log('Username:', username);
-        
-        // If setup is not complete, redirect to landing
+        // Navigation flow: landing -> name-setup -> language-setup -> login -> main app
         if (!setupComplete) {
-            console.log('Redirecting to landing - setup not complete');
             window.location.href = 'landing.html';
             return;
         }
         
-        // If setup complete but not logged in, redirect to login
         if (!isLoggedIn) {
-            console.log('Redirecting to login - not logged in');
             window.location.href = 'login.html';
             return;
         }
-        
-        console.log('Proceeding to main app');
         
         // Set user info
         currentUser = username;
